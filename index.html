@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <title>Shabak TV - البث المباشر</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
       background-size: 400% 400%;
       animation: backgroundMove 30s ease infinite;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Tajawal', sans-serif;
       color: white;
       text-align: center;
     }
@@ -23,10 +24,11 @@
 
     h1 {
       padding: 20px;
-      font-size: 28px;
+      font-size: 32px;
       position: relative;
       display: inline-block;
       overflow: hidden;
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
     }
 
     .shine {
@@ -36,8 +38,7 @@
       height: 100%;
       width: 100%;
       background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
-      animation: shine 2s ease-in-out infinite;
-      animation-delay: 15s;
+      animation: shine 5s ease-in-out infinite;
     }
 
     @keyframes shine {
@@ -56,16 +57,19 @@
       border-radius: 16px;
       padding: 20px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.4s;
       border: 1px solid #2a2a2a;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
       font-size: 18px;
       text-decoration: none;
       color: white;
+      position: relative;
+      overflow: hidden;
     }
     .card:hover {
-      background: #1f1f1f;
-      transform: scale(1.05);
+      background: linear-gradient(145deg, #292929, #141414);
+      transform: scale(1.07);
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
     }
   </style>
 </head>
@@ -77,12 +81,22 @@
   <div class="grid">
     <script>
       const grid = document.currentScript.parentElement;
+      let firstHref = "";
       for (let i = 1; i <= 10; i++) {
         const a = document.createElement("a");
-        a.href = "player.html?name=Shabak+Tv+" + i + "&src=https://example.com/stream" + i + ".m3u8";
+        const name = `Shabak Tv ${i}`;
+        const src = `https://example.com/stream${i}.m3u8`;
+        a.href = `player.html?name=${encodeURIComponent(name)}&src=${encodeURIComponent(src)}`;
         a.className = "card";
-        a.textContent = "Shabak Tv " + i;
+        a.textContent = name;
         grid.appendChild(a);
+
+        if (i === 1) firstHref = a.href; // احفظ أول رابط
+      }
+
+      // تحقق إذا الجهاز موبايل، ثم توجه تلقائيًا
+      if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        window.location.href = firstHref;
       }
     </script>
   </div>
