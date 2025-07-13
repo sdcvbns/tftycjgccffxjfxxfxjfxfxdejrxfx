@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مشغل القناة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, orientation=landscape">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      display: none;
+    }
+
+    #startBtn, #pinForm input {
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+    }
+
+    #startBtn {
+      background: #1e90ff;
+      color: white;
+      cursor: pointer;
+      display: none;
+    }
+
+    #pinForm {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #pinForm input[type="password"] {
+      width: 220px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    #error {
+      color: red;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="channelName">ادخل رمز الدخول</h2>
+
+  <form id="pinForm">
+    <input type="password" id="pinInput" placeholder="ادخل الرمز السري" />
+    <div id="error"></div>
+    <input type="submit" value="دخول" />
+  </form>
+
+  <button id="startBtn">ابدأ المشاهدة</button>
+  <video id="video" controls autoplay playsinline></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    if (!navigator.onLine) {
+      document.body.innerHTML = '<h2 style="color:red;">يرجى الاتصال بالإنترنت</h2>';
+      throw new Error("No internet");
+    }
+
+    const params = new URLSearchParams(location.search);
+    const name = params.get('name') || 'قناة غير معروفة';
+    const src = params.get('src');
+    document.getElementById('channelName').textContent = name;
+
+    const video = document.getElementById('video');
+    const btn = document.getElementById('startBtn');
+    const pinForm = document.getElementById('pinForm');
+    const pinInput = document.getElementById('pinInput');
+    const error = document.getElementById('error');
+    const correctPin = "1400BC12345";
+
+    const pinKey = "shabaktv_pin";
+
+    if (localStorage.getItem(pinKey) === correctPin) {
+      pinForm.style.display = 'none';
+      btn.style.display = 'inline-block';
+    }
+
+    pinForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (pinInput.value === correctPin) {
+        localStorage.setItem(pinKey, correctPin);
+        pinForm.style.display = 'none';
+        btn.style.display = 'inline-block';
+      } else {
+        error.textContent = "رمز غير صحيح!";
+      }
+    });
+
+    btn.addEventListener('click', () => {
+      btn.style.display = 'none';
+      video.style.display = 'block';
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(src);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play();
+          goFullscreen();
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = src;
+        video.addEventListener('loadedmetadata', () => {
+          video.play();
+          goFullscreen();
+        });
+      } else {
+        alert("المتصفح لا يدعم تشغيل هذه القناة.");
+      }
+    });
+
+    function goFullscreen() {
+      if (video.requestFullscreen) video.requestFullscreen();
+      else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+      else if (video.msRequestFullscreen) video.msRequestFullscreen();
+
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      }
+    }
+  </script>
+</body>
+</html>
