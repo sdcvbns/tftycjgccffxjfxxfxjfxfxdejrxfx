@@ -72,30 +72,12 @@
       box-shadow: 0 0 20px rgba(255,255,255,0.2);
     }
 
-    #playerContainer {
+    #pinContainer, #channelsContainer, #playerContainer {
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 20px;
-    }
-
-    #playerContainer video {
-      width: 90%;
-      max-width: 800px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
-
-    #startBtn {
-      padding: 15px 30px;
-      font-size: 18px;
-      border-radius: 12px;
-      border: none;
-      background: #1e90ff;
-      color: white;
-      cursor: pointer;
-      margin-top: 20px;
     }
 
     #pinForm input {
@@ -118,6 +100,13 @@
       color: red;
       font-size: 14px;
     }
+
+    #playerContainer video {
+      width: 90%;
+      max-width: 800px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
   </style>
 </head>
 <body>
@@ -125,26 +114,36 @@
     Shabak Tv
     <span class="shine"></span>
   </h1>
-  <div class="grid" id="grid"></div>
 
-  <div id="playerContainer">
-    <h2 id="channelName">ادخل رمز الدخول</h2>
+  <!-- واجهة طلب الرمز -->
+  <div id="pinContainer">
+    <h2>ادخل رمز الدخول</h2>
     <form id="pinForm">
       <input type="password" id="pinInput" placeholder="ادخل الرمز السري" />
       <div id="error"></div>
       <input type="submit" value="دخول" />
     </form>
-    <button id="startBtn">ابدأ المشاهدة</button>
+  </div>
+
+  <!-- واجهة القنوات -->
+  <div id="channelsContainer">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- واجهة المشغل -->
+  <div id="playerContainer">
+    <h2 id="channelName">جاري تحميل القناة...</h2>
     <video id="video" controls autoplay playsinline></video>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    const grid = document.getElementById('grid');
+    const pinContainer = document.getElementById('pinContainer');
+    const channelsContainer = document.getElementById('channelsContainer');
     const playerContainer = document.getElementById('playerContainer');
+    const grid = document.getElementById('grid');
     const channelName = document.getElementById('channelName');
     const video = document.getElementById('video');
-    const btn = document.getElementById('startBtn');
     const pinForm = document.getElementById('pinForm');
     const pinInput = document.getElementById('pinInput');
     const error = document.getElementById('error');
@@ -165,6 +164,7 @@
       "https://example.com/stream10.m3u8"
     ];
 
+    // إعداد الشبكة
     streams.forEach((src, index) => {
       const a = document.createElement("div");
       a.className = "card";
@@ -174,16 +174,21 @@
     });
 
     function startPlayer(name, src) {
+      channelsContainer.style.display = "none";
       playerContainer.style.display = "flex";
       channelName.textContent = name;
       currentSrc = src;
 
-      if (localStorage.getItem(pinKey) === correctPin) {
-        pinForm.style.display = 'none';
-        btn.style.display = 'inline-block';
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(currentSrc);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = currentSrc;
+        video.addEventListener('loadedmetadata', () => video.play());
       } else {
-        pinForm.style.display = 'flex';
-        btn.style.display = 'none';
+        alert("المتصفح لا يدعم تشغيل هذه القناة.");
       }
     }
 
@@ -191,36 +196,22 @@
       e.preventDefault();
       if (pinInput.value === correctPin) {
         localStorage.setItem(pinKey, correctPin);
-        pinForm.style.display = 'none';
-        btn.style.display = 'inline-block';
+        showChannels();
       } else {
         error.textContent = "رمز غير صحيح!";
       }
     });
 
-    btn.addEventListener('click', () => {
-      btn.style.display = 'none';
-      video.style.display = 'block';
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(currentSrc);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play();
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = currentSrc;
-        video.addEventListener('loadedmetadata', () => {
-          video.play();
-        });
-      } else {
-        alert("المتصفح لا يدعم تشغيل هذه القناة.");
-      }
-    });
+    function showChannels() {
+      pinContainer.style.display = "none";
+      channelsContainer.style.display = "block";
+    }
 
-    // إذا جهاز موبايل يفتح أول قناة تلقائياً داخل الصفحة
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-      startPlayer("Shabak Tv 1", streams[0]);
+    // تحقق عند التحميل
+    if (localStorage.getItem(pinKey) === correctPin) {
+      showChannels();
+    } else {
+      pinContainer.style.display = "flex";
     }
   </script>
 </body>
