@@ -77,13 +77,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      padding: 20px;
     }
 
     #playerContainer video {
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
     }
 
     #startBtn {
@@ -173,8 +174,6 @@
     });
 
     function startPlayer(name, src) {
-      grid.style.display = "none";
-      document.querySelector('h1').style.display = "none";
       playerContainer.style.display = "flex";
       channelName.textContent = name;
       currentSrc = src;
@@ -182,6 +181,9 @@
       if (localStorage.getItem(pinKey) === correctPin) {
         pinForm.style.display = 'none';
         btn.style.display = 'inline-block';
+      } else {
+        pinForm.style.display = 'flex';
+        btn.style.display = 'none';
       }
     }
 
@@ -205,28 +207,18 @@
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play();
-          goFullscreen();
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = currentSrc;
         video.addEventListener('loadedmetadata', () => {
           video.play();
-          goFullscreen();
         });
       } else {
         alert("المتصفح لا يدعم تشغيل هذه القناة.");
       }
     });
 
-    function goFullscreen() {
-      if (video.requestFullscreen) video.requestFullscreen();
-      else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
-      else if (video.msRequestFullscreen) video.msRequestFullscreen();
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(() => {});
-      }
-    }
-
+    // إذا جهاز موبايل يفتح أول قناة تلقائياً داخل الصفحة
     if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
       startPlayer("Shabak Tv 1", streams[0]);
     }
