@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Shabak TV - البث المباشر</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      background: linear-gradient(135deg, #1c1c1c, #2a2a2a);
       background-size: 400% 400%;
-      animation: backgroundMove 30s ease infinite;
+      animation: gradientMove 20s ease infinite;
       font-family: 'Tajawal', sans-serif;
       color: white;
       text-align: center;
+      overflow-x: hidden;
     }
 
-    @keyframes backgroundMove {
+    @keyframes gradientMove {
       0% {background-position: 0% 50%;}
       50% {background-position: 100% 50%;}
       100% {background-position: 0% 50%;}
@@ -28,7 +29,7 @@
       position: relative;
       display: inline-block;
       overflow: hidden;
-      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+      text-shadow: 0 0 15px rgba(255,255,255,0.2);
     }
 
     .shine {
@@ -37,8 +38,8 @@
       left: -100%;
       height: 100%;
       width: 100%;
-      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
-      animation: shine 5s ease-in-out infinite;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+      animation: shine 4s ease-in-out infinite;
     }
 
     @keyframes shine {
@@ -52,24 +53,69 @@
       gap: 15px;
       padding: 20px;
     }
+
     .card {
-      background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+      background: linear-gradient(145deg, #262626, #1a1a1a);
       border-radius: 16px;
       padding: 20px;
       cursor: pointer;
       transition: 0.4s;
-      border: 1px solid #2a2a2a;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      border: 1px solid #3a3a3a;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
       font-size: 18px;
-      text-decoration: none;
       color: white;
-      position: relative;
-      overflow: hidden;
     }
+
     .card:hover {
-      background: linear-gradient(145deg, #292929, #141414);
-      transform: scale(1.07);
+      background: linear-gradient(145deg, #343434, #222222);
+      transform: scale(1.08);
       box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    #playerContainer {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    #playerContainer video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+
+    #startBtn {
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: none;
+      background: #1e90ff;
+      color: white;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    #pinForm input {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      width: 220px;
+      text-align: center;
+    }
+
+    #pinForm {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #error {
+      color: red;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -78,27 +124,112 @@
     Shabak Tv
     <span class="shine"></span>
   </h1>
-  <div class="grid">
-    <script>
-      const grid = document.currentScript.parentElement;
-      let firstHref = "";
-      for (let i = 1; i <= 10; i++) {
-        const a = document.createElement("a");
-        const name = `Shabak Tv ${i}`;
-        const src = `https://example.com/stream${i}.m3u8`;
-        a.href = `player.html?name=${encodeURIComponent(name)}&src=${encodeURIComponent(src)}`;
-        a.className = "card";
-        a.textContent = name;
-        grid.appendChild(a);
+  <div class="grid" id="grid"></div>
 
-        if (i === 1) firstHref = a.href; // احفظ أول رابط
-      }
-
-      // تحقق إذا الجهاز موبايل، ثم توجه تلقائيًا
-      if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        window.location.href = firstHref;
-      }
-    </script>
+  <div id="playerContainer">
+    <h2 id="channelName">ادخل رمز الدخول</h2>
+    <form id="pinForm">
+      <input type="password" id="pinInput" placeholder="ادخل الرمز السري" />
+      <div id="error"></div>
+      <input type="submit" value="دخول" />
+    </form>
+    <button id="startBtn">ابدأ المشاهدة</button>
+    <video id="video" controls autoplay playsinline></video>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const grid = document.getElementById('grid');
+    const playerContainer = document.getElementById('playerContainer');
+    const channelName = document.getElementById('channelName');
+    const video = document.getElementById('video');
+    const btn = document.getElementById('startBtn');
+    const pinForm = document.getElementById('pinForm');
+    const pinInput = document.getElementById('pinInput');
+    const error = document.getElementById('error');
+    const correctPin = "1400BC12345";
+    const pinKey = "shabaktv_pin";
+    let currentSrc = "";
+
+    const streams = [
+      "https://example.com/stream1.m3u8",
+      "https://example.com/stream2.m3u8",
+      "https://example.com/stream3.m3u8",
+      "https://example.com/stream4.m3u8",
+      "https://example.com/stream5.m3u8",
+      "https://example.com/stream6.m3u8",
+      "https://example.com/stream7.m3u8",
+      "https://example.com/stream8.m3u8",
+      "https://example.com/stream9.m3u8",
+      "https://example.com/stream10.m3u8"
+    ];
+
+    streams.forEach((src, index) => {
+      const a = document.createElement("div");
+      a.className = "card";
+      a.textContent = `Shabak Tv ${index + 1}`;
+      a.onclick = () => startPlayer(`Shabak Tv ${index + 1}`, src);
+      grid.appendChild(a);
+    });
+
+    function startPlayer(name, src) {
+      grid.style.display = "none";
+      document.querySelector('h1').style.display = "none";
+      playerContainer.style.display = "flex";
+      channelName.textContent = name;
+      currentSrc = src;
+
+      if (localStorage.getItem(pinKey) === correctPin) {
+        pinForm.style.display = 'none';
+        btn.style.display = 'inline-block';
+      }
+    }
+
+    pinForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (pinInput.value === correctPin) {
+        localStorage.setItem(pinKey, correctPin);
+        pinForm.style.display = 'none';
+        btn.style.display = 'inline-block';
+      } else {
+        error.textContent = "رمز غير صحيح!";
+      }
+    });
+
+    btn.addEventListener('click', () => {
+      btn.style.display = 'none';
+      video.style.display = 'block';
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(currentSrc);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play();
+          goFullscreen();
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = currentSrc;
+        video.addEventListener('loadedmetadata', () => {
+          video.play();
+          goFullscreen();
+        });
+      } else {
+        alert("المتصفح لا يدعم تشغيل هذه القناة.");
+      }
+    });
+
+    function goFullscreen() {
+      if (video.requestFullscreen) video.requestFullscreen();
+      else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+      else if (video.msRequestFullscreen) video.msRequestFullscreen();
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      }
+    }
+
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      startPlayer("Shabak Tv 1", streams[0]);
+    }
+  </script>
 </body>
 </html>
