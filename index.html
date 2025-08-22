@@ -1,218 +1,543 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>Shabak TV - البث المباشر</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      background: linear-gradient(135deg, #1c1c1c, #2a2a2a);
-      background-size: 400% 400%;
-      animation: gradientMove 20s ease infinite;
-      font-family: 'Tajawal', sans-serif;
-      color: white;
-      text-align: center;
-      overflow-x: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shark IPTV</title>
+    
+    <style>
+        :root {
+            --main-color: #8c7ae6;
+        }
 
-    @keyframes gradientMove {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
 
-    h1 {
-      padding: 20px;
-      font-size: 32px;
-      position: relative;
-      display: inline-block;
-      overflow: hidden;
-      text-shadow: 0 0 15px rgba(255,255,255,0.2);
-    }
+        .container {
+            background-color: #2a2a4a;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
 
-    .shine {
-      position: absolute;
-      top: 0;
-      left: -100%;
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
-      animation: shine 4s ease-in-out infinite;
-    }
+        /* Admin button and panel */
+        .admin-button-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+        
+        .admin-toggle-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #e0e0e0;
+        }
+        
+        .admin-panel {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .admin-panel input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #3a3a5a;
+            color: #fff;
+        }
+        
+        .activation-form {
+            margin-top: 20px;
+        }
 
-    @keyframes shine {
-      0% {left: -100%;}
-      100% {left: 100%;}
-    }
+        h2 {
+            color: var(--main-color);
+        }
+        
+        .input-group {
+            position: relative;
+            width: 90%;
+            margin: 10px auto;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 15px;
-      padding: 20px;
-    }
+        .input-group input {
+            width: 100%;
+            padding: 15px 45px 15px 15px; /* Added padding-right for the copy button */
+            border: 1px solid #4a4a6a;
+            border-radius: 8px;
+            background-color: #3a3a5a;
+            color: #e0e0e0;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
 
-    .card {
-      background: linear-gradient(145deg, #262626, #1a1a1a);
-      border-radius: 16px;
-      padding: 20px;
-      cursor: pointer;
-      transition: 0.4s;
-      border: 1px solid #3a3a3a;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-      font-size: 18px;
-      color: white;
-    }
+        .input-group .copy-button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
 
-    .card:hover {
-      background: linear-gradient(145deg, #343434, #222222);
-      transform: scale(1.08);
-      box-shadow: 0 0 20px rgba(255,255,255,0.2);
-    }
+        .input-group .copy-button:hover {
+            color: var(--main-color);
+        }
 
-    #pinContainer, #channelsContainer, #playerContainer {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+        button {
+            padding: 15px 30px;
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
 
-    #pinForm input {
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      width: 220px;
-      text-align: center;
-    }
+        button:hover {
+            background-color: #6a5ac1;
+        }
+        
+        .admin-code-item {
+            background-color: #3a3a5a;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            text-align: right;
+            position: relative;
+        }
 
-    #pinForm {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-    }
+        .admin-code-item .copy-button {
+            top: 10px;
+            right: 10px;
+        }
 
-    #error {
-      color: red;
-      font-size: 14px;
-    }
+        .admin-code-item strong {
+            display: block;
+            margin-bottom: 5px;
+        }
 
-    #playerContainer video {
-      width: 90%;
-      max-width: 800px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
-  </style>
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Channel List Styling */
+        .channel-container {
+            max-width: 600px;
+        }
+        
+        .channel-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        
+        .channel-list li {
+            margin-bottom: 10px;
+        }
+        
+        .channel-list a {
+            display: block;
+            padding: 15px;
+            background-color: #3a3a5a;
+            color: #e0e0e0;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        
+        .channel-list a:hover {
+            background-color: #4a4a7a;
+        }
+
+        /* Video Player Styling */
+        .player-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        .player-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Settings Styling */
+        .settings-container {
+            max-width: 500px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #4a4a6a;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--main-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Dark Mode */
+        .dark-mode {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .dark-mode .container {
+            background-color: #111;
+        }
+
+        .dark-mode input {
+            background-color: #222;
+        }
+
+        .dark-mode h2 {
+            color: #fff;
+        }
+
+    </style>
 </head>
 <body>
-  <h1>
-    Shabak Tv
-    <span class="shine"></span>
-  </h1>
 
-  <!-- واجهة طلب الرمز -->
-  <div id="pinContainer">
-    <h2>ادخل رمز الدخول</h2>
-    <form id="pinForm">
-      <input type="password" id="pinInput" placeholder="ادخل الرمز السري" />
-      <div id="error"></div>
-      <input type="submit" value="دخول" />
-    </form>
-  </div>
+    <div id="activation-page" class="container">
+        <div class="admin-button-container">
+            <button id="admin-toggle" class="admin-toggle-button" onclick="toggleAdminPanel()">🔒</button>
+        </div>
+        <div id="admin-panel" class="admin-panel">
+            <h2>لوحة الإدارة</h2>
+            <input type="password" id="admin-pass" placeholder="Admin Code">
+            <button onclick="checkAdminPassword()">الدخول</button>
+        </div>
+        
+        <div class="activation-form">
+            <h2>تفعيل الاشتراك</h2>
+            <div class="input-group">
+                <input type="text" id="serial-number" placeholder="أدخل السيريال" readonly>
+                <button class="copy-button" onclick="copyToClipboard('serial-number')">📋</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="activation-code" placeholder="أدخل كود التفعيل">
+                <button class="copy-button" onclick="copyToClipboard('activation-code')">📋</button>
+            </div>
+            <button id="activate-button" onclick="activate()">تفعيل</button>
+        </div>
+        <p>
+            <a href="#" id="channels-link" onclick="showPage('channels-page')" style="display:none;">القنوات</a>
+            |
+            <a href="#" id="settings-link" onclick="showPage('settings-page')">الإعدادات</a>
+        </p>
+    </div>
 
-  <!-- واجهة القنوات -->
-  <div id="channelsContainer">
-    <div class="grid" id="grid"></div>
-  </div>
+    <div id="admin-control-page" class="container" style="display:none;">
+        <h2>إدارة الأكواد</h2>
+        <input type="text" id="new-serial" placeholder="سيريال جديد">
+        <input type="text" id="new-code" placeholder="كود التفعيل">
+        <button onclick="saveActivationCode()">حفظ الكود</button>
+        <div id="code-list"></div>
+        <p>
+            <a href="#" onclick="showPage('activation-page')">العودة</a>
+        </p>
+    </div>
 
-  <!-- واجهة المشغل -->
-  <div id="playerContainer">
-    <h2 id="channelName">جاري تحميل القناة...</h2>
-    <video id="video" controls autoplay playsinline></video>
-  </div>
+    <div id="channels-page" class="container channel-container" style="display:none;">
+        <h2>قائمة القنوات</h2>
+        <ul class="channel-list">
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel1.m3u8')">Shark 1</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel2.m3u8')">Shark 2</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel3.m3u8')">Shark 3</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel4.m3u8')">Shark 4</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel5.m3u8')">Shark 5</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel6.m3u8')">Shark 6</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel7.m3u8')">Shark 7</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel8.m3u8')">Shark 8</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel9.m3u8')">Shark 9</a></li>
+            <li><a href="#" onclick="playChannel('https://cdn-videos.sharkiptv.net/path/to/channel10.m3u8')">Shark 10</a></li>
+        </ul>
+        <p>
+            <a href="#" onclick="showPage('activation-page')">تفعيل الاشتراك</a> | <a href="#" onclick="showPage('settings-page')">الإعدادات</a>
+        </p>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    const pinContainer = document.getElementById('pinContainer');
-    const channelsContainer = document.getElementById('channelsContainer');
-    const playerContainer = document.getElementById('playerContainer');
-    const grid = document.getElementById('grid');
-    const channelName = document.getElementById('channelName');
-    const video = document.getElementById('video');
-    const pinForm = document.getElementById('pinForm');
-    const pinInput = document.getElementById('pinInput');
-    const error = document.getElementById('error');
-    const correctPin = "1400BC12345";
-    const pinKey = "shabaktv_pin";
-    let currentSrc = "";
+    <div id="player-page" class="container" style="display:none;">
+        <h2>مشغل القناة</h2>
+        <div class="player-container">
+            <video id="video-player" controls autoplay></video>
+        </div>
+        <p>
+            <a href="#" onclick="showPage('channels-page')">العودة إلى القنوات</a>
+        </p>
+    </div>
 
-    const streams = [
-      "https://example.com/stream1.m3u8",
-      "https://example.com/stream2.m3u8",
-      "https://example.com/stream3.m3u8",
-      "https://example.com/stream4.m3u8",
-      "https://example.com/stream5.m3u8",
-      "https://example.com/stream6.m3u8",
-      "https://example.com/stream7.m3u8",
-      "https://example.com/stream8.m3u8",
-      "https://example.com/stream9.m3u8",
-      "https://example.com/stream10.m3u8"
-    ];
+    <div id="settings-page" class="container settings-container" style="display:none;">
+        <h2>الإعدادات</h2>
+        <div class="setting-item">
+            <label>تغيير لون الواجهة:</label>
+            <input type="color" id="color-picker" value="#8c7ae6" onchange="changeColor()">
+        </div>
+        <div class="setting-item">
+            <label>الوضع الليلي:</label>
+            <label class="switch">
+                <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <p>
+            <a href="#" onclick="showPage('activation-page')">تفعيل الاشتراك</a> | <a href="#" onclick="showPage('channels-page')">القنوات</a>
+        </p>
+    </div>
 
-    // إعداد الشبكة
-    streams.forEach((src, index) => {
-      const a = document.createElement("div");
-      a.className = "card";
-      a.textContent = `Shabak Tv ${index + 1}`;
-      a.onclick = () => startPlayer(`Shabak Tv ${index + 1}`, src);
-      grid.appendChild(a);
-    });
+    <footer>
+        <p>&copy; 2024 Talibalazoo. All Rights Reserved.</p>
+    </footer>
 
-    function startPlayer(name, src) {
-      channelsContainer.style.display = "none";
-      playerContainer.style.display = "flex";
-      channelName.textContent = name;
-      currentSrc = src;
+    <script>
+        // دالة لتوليد سيريال فريد (ليس مضموناً بالكامل)
+        function generateSerial() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let serial = '';
+            for (let i = 0; i < 16; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    serial += '-';
+                }
+                serial += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return serial;
+        }
 
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(currentSrc);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = currentSrc;
-        video.addEventListener('loadedmetadata', () => video.play());
-      } else {
-        alert("المتصفح لا يدعم تشغيل هذه القناة.");
-      }
-    }
+        // دالة لعرض صفحة معينة
+        function showPage(pageId) {
+            document.getElementById('activation-page').style.display = 'none';
+            document.getElementById('channels-page').style.display = 'none';
+            document.getElementById('settings-page').style.display = 'none';
+            document.getElementById('admin-control-page').style.display = 'none';
+            document.getElementById('player-page').style.display = 'none';
+            document.getElementById(pageId).style.display = 'block';
+        }
 
-    pinForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (pinInput.value === correctPin) {
-        localStorage.setItem(pinKey, correctPin);
-        showChannels();
-      } else {
-        error.textContent = "رمز غير صحيح!";
-      }
-    });
+        // وظائف لوحة الإدارة
+        function toggleAdminPanel() {
+            const adminPanel = document.getElementById('admin-panel');
+            adminPanel.style.display = adminPanel.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        function checkAdminPassword() {
+            const password = document.getElementById('admin-pass').value;
+            if (password === 'p') {
+                showPage('admin-control-page');
+                loadActivationCodes(); // تحميل الأكواد المحفوظة
+            } else {
+                alert('رمز الدخول غير صحيح.');
+            }
+        }
 
-    function showChannels() {
-      pinContainer.style.display = "none";
-      channelsContainer.style.display = "block";
-    }
+        function saveActivationCode() {
+            const serial = document.getElementById('new-serial').value;
+            const code = document.getElementById('new-code').value;
+            if (serial && code) {
+                const activations = JSON.parse(localStorage.getItem('activations') || '{}');
+                if (activations[serial]) {
+                    alert('هذا السيريال موجود مسبقاً.');
+                } else {
+                    activations[serial] = { code: code, activated: false };
+                    localStorage.setItem('activations', JSON.stringify(activations));
+                    alert('تم حفظ الكود بنجاح.');
+                    document.getElementById('new-serial').value = '';
+                    document.getElementById('new-code').value = '';
+                    loadActivationCodes(); // إعادة تحميل القائمة
+                }
+            } else {
+                alert('يرجى إدخال السيريال وكود التفعيل.');
+            }
+        }
 
-    // تحقق عند التحميل
-    if (localStorage.getItem(pinKey) === correctPin) {
-      showChannels();
-    } else {
-      pinContainer.style.display = "flex";
-    }
-  </script>
+        function loadActivationCodes() {
+            const activations = JSON.parse(localStorage.getItem('activations') || '{}');
+            const codeList = document.getElementById('code-list');
+            codeList.innerHTML = '<h3>الأكواد المحفوظة:</h3>';
+            for (const serial in activations) {
+                const status = activations[serial].activated ? 'مفعل' : 'غير مفعل';
+                const div = document.createElement('div');
+                div.className = 'admin-code-item';
+                div.innerHTML = `
+                    <button class="copy-button" onclick="copyToClipboard('${serial}', 'code')">📋</button>
+                    <p dir="ltr"><strong>Serial:</strong> ${serial}</p>
+                    <p dir="ltr"><strong>Code:</strong> ${activations[serial].code}</p>
+                    <p><strong>Status:</strong> ${status}</p>
+                `;
+                codeList.appendChild(div);
+            }
+        }
+
+        function copyToClipboard(id, type) {
+            let textToCopy;
+            if (type === 'code') {
+                const activations = JSON.parse(localStorage.getItem('activations') || '{}');
+                textToCopy = activations[id].code;
+            } else {
+                const inputField = document.getElementById(id);
+                textToCopy = inputField.value;
+            }
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('تم نسخ ' + (type === 'code' ? 'الكود' : 'السيريال') + ' بنجاح!');
+            }).catch(err => {
+                console.error('فشل في النسخ: ', err);
+            });
+        }
+        
+        // وظائف التفعيل
+        function activate() {
+            const serial = document.getElementById('serial-number').value;
+            const code = document.getElementById('activation-code').value;
+
+            const activations = JSON.parse(localStorage.getItem('activations') || '{}');
+            const activationEntry = activations[serial];
+
+            if (!activationEntry) {
+                alert('السيريال غير صحيح.');
+                return;
+            }
+
+            if (activationEntry.activated) {
+                alert('هذا السيريال مفعل بالفعل.');
+                return;
+            }
+
+            if (activationEntry.code === code) {
+                activationEntry.activated = true;
+                localStorage.setItem('activations', JSON.stringify(activations));
+                localStorage.setItem('isActivated', 'true');
+                alert('تم تفعيل الاشتراك بنجاح!');
+                document.getElementById('channels-link').style.display = 'inline';
+                showPage('channels-page');
+            } else {
+                alert('كود التفعيل غير صحيح.');
+            }
+        }
+
+        // وظائف المشغل
+        function playChannel(url) {
+            const videoPlayer = document.getElementById('video-player');
+            videoPlayer.src = url;
+            videoPlayer.play();
+            showPage('player-page');
+        }
+        
+        // وظائف المظهر
+        function changeColor() {
+            const newColor = document.getElementById('color-picker').value;
+            document.documentElement.style.setProperty('--main-color', newColor);
+        }
+        
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // منع النسخ
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('selectstart', event => event.preventDefault());
+        
+        // السماح بالنسخ فقط في حقول الإدخال
+        document.getElementById('serial-number').addEventListener('contextmenu', event => event.stopPropagation());
+        document.getElementById('activation-code').addEventListener('contextmenu', event => event.stopPropagation());
+        
+        document.getElementById('serial-number').addEventListener('selectstart', event => event.stopPropagation());
+        document.getElementById('activation-code').addEventListener('selectstart', event => event.stopPropagation());
+
+        // تفعيل الواجهة الأولى عند تحميل الصفحة
+        window.onload = function() {
+            const isActivated = localStorage.getItem('isActivated') === 'true';
+            const serialInput = document.getElementById('serial-number');
+
+            if (isActivated) {
+                document.getElementById('channels-link').style.display = 'inline';
+                showPage('channels-page');
+            } else {
+                const storedSerial = localStorage.getItem('deviceSerial');
+                if (!storedSerial) {
+                    const newSerial = generateSerial();
+                    localStorage.setItem('deviceSerial', newSerial);
+                    serialInput.value = newSerial;
+                } else {
+                    serialInput.value = storedSerial;
+                }
+                showPage('activation-page');
+            }
+        };
+    </script>
 </body>
 </html>
