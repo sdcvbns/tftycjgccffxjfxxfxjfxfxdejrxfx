@@ -24,7 +24,7 @@ button:hover{background:#45a049;transform:scale(1.03);}
 #player video{width:100%;border-radius:10px;margin-top:15px;}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.8/hls.min.js"></script>
 </head>
 <body oncontextmenu="return false;" onselectstart="return false;">
 
@@ -66,7 +66,7 @@ button:hover{background:#45a049;transform:scale(1.03);}
 <script>
 let activeSerial = '';
 let serialKey = 'deviceSerial';
-let hls; // متغير جديد لحفظ مثيل HLS.js
+let hls; // متغير لحفظ مثيل HLS.js
 
 // توليد سيريال ثابت لكل جهاز
 function getSerial(){
@@ -121,18 +121,19 @@ function loadChannels(){
   });
 }
 
-// فتح واجهة القناة (تم التعديل هنا)
+// فتح واجهة القناة مع معالجة روابط HLS.js
 function openChannel(name, src){
   document.getElementById('channels').classList.add('hidden');
   document.getElementById('player').classList.remove('hidden');
   document.getElementById('channelTitle').textContent = name;
   const video = document.getElementById('channelVideo');
+  const messageElement = document.getElementById('message');
+  messageElement.textContent = ''; // مسح أي رسائل سابقة
 
   // إيقاف المشغل السابق إذا كان موجودًا
   if (hls) {
     hls.destroy();
     if (video.src) video.src = "";
-    if (video.canPlayType('application/vnd.apple.mpegurl')) video.load(); // إعادة تحميل المشغل
   }
   
   // التحقق من نوع الرابط
@@ -142,6 +143,14 @@ function openChannel(name, src){
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, function() {
       video.play();
+    });
+    // إضافة معالجة الأخطاء
+    hls.on(Hls.Events.ERROR, function (event, data) {
+      if (data.fatal) {
+        messageElement.textContent = `خطأ في تشغيل القناة: ${data.details}`;
+        messageElement.style.color = 'red';
+        console.error('Fatal HLS.js error:', data.details);
+      }
     });
   } else {
     // تشغيل الفيديو بالطريقة التقليدية
