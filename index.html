@@ -24,10 +24,10 @@ button:hover{background:#45a049;transform:scale(1.03);}
 #player video{width:100%;border-radius:10px;margin-top:15px;}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 </head>
 <body oncontextmenu="return false;" onselectstart="return false;">
 
-<!-- واجهة الاشتراك -->
 <div id="subscription" class="container">
   <h2>تفعيل الاشتراك</h2>
   <input type="text" id="serial" placeholder="السيريال سيتم توليده هنا" readonly>
@@ -37,7 +37,6 @@ button:hover{background:#45a049;transform:scale(1.03);}
   <div class="footer">© talibalazoo</div>
 </div>
 
-<!-- واجهة القنوات -->
 <div id="channels" class="channels hidden">
   <h2>القنوات الرياضية</h2>
   <div id="channelList"></div>
@@ -45,7 +44,6 @@ button:hover{background:#45a049;transform:scale(1.03);}
   <div class="footer">© talibalazoo</div>
 </div>
 
-<!-- واجهة تشغيل القناة -->
 <div id="player" class="player hidden">
   <h2 id="channelTitle"></h2>
   <video id="channelVideo" controls autoplay></video>
@@ -53,7 +51,6 @@ button:hover{background:#45a049;transform:scale(1.03);}
   <div class="footer">© talibalazoo</div>
 </div>
 
-<!-- واجهة الإعدادات -->
 <div id="settings" class="settings hidden">
   <h2>الإعدادات</h2>
   <button class="theme-btn" onclick="changeColor('#f0f2f5','#333')">الوضع الافتراضي</button>
@@ -69,6 +66,7 @@ button:hover{background:#45a049;transform:scale(1.03);}
 <script>
 let activeSerial = '';
 let serialKey = 'deviceSerial';
+let hls; // متغير جديد لحفظ مثيل HLS.js
 
 // توليد سيريال ثابت لكل جهاز
 function getSerial(){
@@ -123,12 +121,33 @@ function loadChannels(){
   });
 }
 
-// فتح واجهة القناة
+// فتح واجهة القناة (تم التعديل هنا)
 function openChannel(name, src){
   document.getElementById('channels').classList.add('hidden');
   document.getElementById('player').classList.remove('hidden');
   document.getElementById('channelTitle').textContent = name;
-  document.getElementById('channelVideo').src = src;
+  const video = document.getElementById('channelVideo');
+
+  // إيقاف المشغل السابق إذا كان موجودًا
+  if (hls) {
+    hls.destroy();
+    if (video.src) video.src = "";
+    if (video.canPlayType('application/vnd.apple.mpegurl')) video.load(); // إعادة تحميل المشغل
+  }
+  
+  // التحقق من نوع الرابط
+  if (src.endsWith('.m3u8') && Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(src);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      video.play();
+    });
+  } else {
+    // تشغيل الفيديو بالطريقة التقليدية
+    video.src = src;
+    video.play();
+  }
 }
 
 // العودة للقنوات
@@ -136,6 +155,14 @@ function backToChannels(){
   document.getElementById('player').classList.add('hidden');
   document.getElementById('settings').classList.add('hidden');
   document.getElementById('channels').classList.remove('hidden');
+  
+  // إيقاف المشغل الحالي عند العودة
+  const video = document.getElementById('channelVideo');
+  video.pause();
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
 }
 
 // فتح الإعدادات
