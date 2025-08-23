@@ -4,24 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>talibalazoo | الاشتراك</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;}
-body{background:#f0f2f5;color:#333;transition: background 0.3s,color 0.3s;}
+:root {
+  --primary-color: #4CAF50;
+  --background-color: #f0f2f5;
+  --text-color: #333;
+  --container-bg: #fff;
+  --font-family: 'Cairo', sans-serif;
+  --font-size: 16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:var(--font-family);}
+body{
+  background:var(--background-color);
+  color:var(--text-color);
+  font-size: var(--font-size);
+  transition: background 0.5s, color 0.5s;
+}
 .hidden{display:none;}
-.container{max-width:500px;margin:30px auto;padding:25px;background:#fff;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.1);animation:fadeIn 0.6s;}
-h2{text-align:center;margin-bottom:20px;color:#555;}
-input{width:100%;padding:12px;margin:12px 0;border:1px solid #ccc;border-radius:8px;font-size:16px;transition:border 0.3s;}
-input:focus{border:1px solid #4CAF50;outline:none;}
-button{width:100%;padding:12px;background:#4CAF50;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:16px;transition: background 0.3s, transform 0.2s;}
-button:hover{background:#45a049;transform:scale(1.03);}
-.channels,.settings,.player{padding:20px;max-width:700px;margin:20px auto;background:#fff;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.1);animation:fadeIn 0.6s;}
-.channel-item{padding:15px;margin:10px 0;background: linear-gradient(90deg,#6a11cb,#2575fc);border-radius:10px;text-align:center;color:#fff;font-weight:bold;font-size:20px;cursor:pointer;transition: transform 0.3s, box-shadow 0.3s;}
+.container{max-width:500px;margin:30px auto;padding:25px;background:var(--container-bg);border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.1);animation:fadeIn 0.6s;}
+h2, h3{text-align:center;margin-bottom:20px;color:var(--text-color);}
+input{width:100%;padding:12px;margin:12px 0;border:1px solid #ccc;border-radius:8px;font-size:inherit;transition:border 0.3s;}
+input:focus{border:1px solid var(--primary-color);outline:none;}
+button, .theme-btn{width:100%;padding:12px;background:var(--primary-color);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:inherit;transition: background 0.3s, transform 0.2s;}
+button:hover, .theme-btn:hover{background-color:#45a049;transform:scale(1.03);}
+.channels,.settings,.player{padding:20px;max-width:700px;margin:20px auto;background:var(--container-bg);border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.1);animation:fadeIn 0.6s;}
+.channel-item{padding:15px;margin:10px 0;background: linear-gradient(90deg, #6a11cb, #2575fc);border-radius:10px;text-align:center;color:#fff;font-weight:bold;font-size:1.2em;cursor:pointer;transition: transform 0.3s, box-shadow 0.3s;}
 .channel-item:hover{transform: scale(1.05);box-shadow:0 5px 20px rgba(0,0,0,0.2);}
-.footer{text-align:center;margin-top:20px;font-size:14px;color:#888;}
-.theme-btn{padding:10px 20px;margin:10px 0;cursor:pointer;border-radius:5px;border:none;background:#555;color:#fff;transition: background 0.3s;}
-.theme-btn:hover{background:#444;}
-#player video{width:100%;border-radius:10px;margin-top:15px;}
+.footer{text-align:center;margin-top:20px;font-size:0.9em;color:#888;}
+.theme-btn { margin: 5px 0; }
+#player video{width:100%;border-radius:10px;margin-top:15px;background-color:#000;}
+.settings-section { border-top: 1px solid #eee; margin-top: 20px; padding-top: 20px; }
+.settings-section h3 { margin-bottom: 15px; }
+.color-picker { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+.color-box { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.8/hls.min.js"></script>
@@ -47,28 +63,52 @@ button:hover{background:#45a049;transform:scale(1.03);}
 <div id="player" class="player hidden">
   <h2 id="channelTitle"></h2>
   <video id="channelVideo" controls autoplay></video>
+  <button class="theme-btn" onclick="toggleFullScreen()">ملء الشاشة</button>
   <button class="theme-btn" onclick="backToChannels()">عودة للقنوات</button>
   <div class="footer">© talibalazoo</div>
 </div>
 
 <div id="settings" class="settings hidden">
   <h2>الإعدادات</h2>
-  <button class="theme-btn" onclick="changeColor('#f0f2f5','#333')">الوضع الافتراضي</button>
-  <button class="theme-btn" onclick="changeColor('#222','#fff')">الوضع الليلي</button>
-  <div style="margin-top:20px;">
-    <h3>معلومات الاشتراك:</h3>
+  
+  <div class="settings-section">
+    <h3>تخصيص الواجهة</h3>
+    <button class="theme-btn" onclick="toggleNightMode()">الوضع الليلي</button>
+    <div class="color-picker">
+        <div class="color-box" style="background:#4CAF50;" onclick="changeThemeColor('#4CAF50')"></div>
+        <div class="color-box" style="background:#2196F3;" onclick="changeThemeColor('#2196F3')"></div>
+        <div class="color-box" style="background:#f44336;" onclick="changeThemeColor('#f44336')"></div>
+        <div class="color-box" style="background:#9C27B0;" onclick="changeThemeColor('#9C27B0')"></div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+      <h3>إعدادات الخط</h3>
+      <select id="fontSelector" onchange="changeFont(this.value)" style="width:100%; padding:10px; border-radius:8px; margin-bottom:10px;">
+          <option value="'Cairo', sans-serif">Cairo</option>
+          <option value="'Tajawal', sans-serif">Tajawal</option>
+          <option value="'Almarai', sans-serif">Almarai</option>
+      </select>
+      <div>
+        <button class="theme-btn" onclick="changeFontSize('increase')">تكبير الخط</button>
+        <button class="theme-btn" onclick="changeFontSize('decrease')">تصغير الخط</button>
+      </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>معلومات الاشتراك</h3>
     <p id="subInfo"></p>
   </div>
-  <button class="theme-btn" onclick="backToChannels()">عودة للقنوات</button>
+  
+  <button class="theme-btn" onclick="backToChannels()" style="margin-top:20px;">عودة للقنوات</button>
   <div class="footer">© talibalazoo</div>
 </div>
 
 <script>
 let activeSerial = '';
 let serialKey = 'deviceSerial';
-let hls; // متغير لحفظ مثيل HLS.js
+let hls; 
 
-// توليد سيريال ثابت لكل جهاز
 function getSerial(){
   let serial = localStorage.getItem(serialKey);
   if(!serial){
@@ -78,24 +118,23 @@ function getSerial(){
   return serial;
 }
 
-// عند تحميل الصفحة
 window.onload = function(){
   const serial = getSerial();
   document.getElementById('serial').value = serial;
 
-  // التعبئة التلقائية للكود إذا كان مفعل مسبقًا
   if(localStorage.getItem('activated') === 'true' && localStorage.getItem('code')){
     document.getElementById('code').value = localStorage.getItem('code');
   }
+  
+  // تطبيق الإعدادات المحفوظة
+  applySavedSettings();
 
-  // دائماً أظهر واجهة الاشتراك عند الدخول للموقع
   document.getElementById('subscription').classList.remove('hidden');
   document.getElementById('channels').classList.add('hidden');
   document.getElementById('player').classList.add('hidden');
   document.getElementById('settings').classList.add('hidden');
 }
 
-// توليد قائمة القنوات
 const channelData = [
   {name:'shark 1', src:'https://shls-live-enc.edgenextcdn.net/out/v1/948c54279b594944adde578c95f1d7d1/index.m3u8'},
   {name:'shark 2', src:'https://1.abcdjklaksnj.sbs/hls/1/stream.m3u8'},
@@ -108,7 +147,6 @@ const channelData = [
   {name:'shark 9', src:'video9.mp4'},
   {name:'shark 10', src:'video10.mp4'}
 ];
-
 function loadChannels(){
   const list = document.getElementById('channelList');
   list.innerHTML='';
@@ -121,22 +159,20 @@ function loadChannels(){
   });
 }
 
-// فتح واجهة القناة مع معالجة روابط HLS.js
 function openChannel(name, src){
   document.getElementById('channels').classList.add('hidden');
   document.getElementById('player').classList.remove('hidden');
   document.getElementById('channelTitle').textContent = name;
   const video = document.getElementById('channelVideo');
   const messageElement = document.getElementById('message');
-  messageElement.textContent = ''; // مسح أي رسائل سابقة
+  messageElement.textContent = ''; 
 
-  // إيقاف المشغل السابق إذا كان موجودًا
+  video.pause();
   if (hls) {
     hls.destroy();
-    if (video.src) video.src = "";
   }
+  video.src = '';
   
-  // التحقق من نوع الرابط
   if (src.endsWith('.m3u8') && Hls.isSupported()) {
     hls = new Hls();
     hls.loadSource(src);
@@ -144,49 +180,110 @@ function openChannel(name, src){
     hls.on(Hls.Events.MANIFEST_PARSED, function() {
       video.play();
     });
-    // إضافة معالجة الأخطاء
     hls.on(Hls.Events.ERROR, function (event, data) {
       if (data.fatal) {
-        messageElement.textContent = `خطأ في تشغيل القناة: ${data.details}`;
-        messageElement.style.color = 'red';
         console.error('Fatal HLS.js error:', data.details);
       }
     });
   } else {
-    // تشغيل الفيديو بالطريقة التقليدية
     video.src = src;
     video.play();
   }
 }
 
-// العودة للقنوات
 function backToChannels(){
   document.getElementById('player').classList.add('hidden');
   document.getElementById('settings').classList.add('hidden');
   document.getElementById('channels').classList.remove('hidden');
   
-  // إيقاف المشغل الحالي عند العودة
   const video = document.getElementById('channelVideo');
   video.pause();
   if (hls) {
     hls.destroy();
     hls = null;
   }
+  video.src = '';
 }
 
-// فتح الإعدادات
 function openSettings(){
   document.getElementById('channels').classList.add('hidden');
   document.getElementById('settings').classList.remove('hidden');
 }
 
-// تغيير اللون / الوضع الليلي
-function changeColor(bg, color){
-  document.body.style.background=bg;
-  document.body.style.color=color;
+// --- دوال الإعدادات الجديدة ---
+
+function toggleNightMode() {
+    const isNight = document.body.style.getPropertyValue('--background-color') === '#222';
+    if (isNight) {
+        // العودة للوضع الافتراضي
+        document.body.style.setProperty('--background-color', '#f0f2f5');
+        document.body.style.setProperty('--text-color', '#333');
+        document.body.style.setProperty('--container-bg', '#fff');
+        localStorage.setItem('nightMode', 'disabled');
+    } else {
+        // تفعيل الوضع الليلي
+        document.body.style.setProperty('--background-color', '#222');
+        document.body.style.setProperty('--text-color', '#fff');
+        document.body.style.setProperty('--container-bg', '#333');
+        localStorage.setItem('nightMode', 'enabled');
+    }
 }
 
-// تفعيل الاشتراك عبر Google Apps Script
+function changeThemeColor(color) {
+    document.body.style.setProperty('--primary-color', color);
+    localStorage.setItem('themeColor', color);
+}
+
+function changeFont(font) {
+    document.body.style.setProperty('--font-family', font);
+    localStorage.setItem('fontFamily', font);
+}
+
+function changeFontSize(action) {
+    let currentSize = parseFloat(getComputedStyle(document.body).getPropertyValue('--font-size'));
+    if (action === 'increase' && currentSize < 24) {
+        currentSize += 2;
+    } else if (action === 'decrease' && currentSize > 12) {
+        currentSize -= 2;
+    }
+    const newSize = `${currentSize}px`;
+    document.body.style.setProperty('--font-size', newSize);
+    localStorage.setItem('fontSize', newSize);
+}
+
+function applySavedSettings() {
+    const nightMode = localStorage.getItem('nightMode');
+    const themeColor = localStorage.getItem('themeColor');
+    const fontFamily = localStorage.getItem('fontFamily');
+    const fontSize = localStorage.getItem('fontSize');
+
+    if (nightMode === 'enabled') {
+        toggleNightMode(); // سيقوم بالتبديل إلى الليلي
+    }
+    if (themeColor) {
+        changeThemeColor(themeColor);
+    }
+    if (fontFamily) {
+        changeFont(fontFamily);
+        document.getElementById('fontSelector').value = fontFamily;
+    }
+    if (fontSize) {
+        document.body.style.setProperty('--font-size', fontSize);
+    }
+}
+
+
+function toggleFullScreen() {
+  const video = document.getElementById('channelVideo');
+  if (!document.fullscreenElement) {
+    video.requestFullscreen().catch(err => {
+      alert(`خطأ في تفعيل وضع ملء الشاشة: ${err.message}`);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
 function activateSubscription(){
   const serial = document.getElementById('serial').value.trim();
   const code = document.getElementById('code').value.trim();
@@ -201,16 +298,18 @@ function activateSubscription(){
   .then(data=>{
     if(data.status==='success'){
       activeSerial = serial;
-      localStorage.setItem('activated','true'); // حفظ التفعيل
-      localStorage.setItem('code', code); // حفظ الكود المفعّل
+      localStorage.setItem('activated','true'); 
+      localStorage.setItem('code', code); 
       message.style.color='green';
       message.textContent='تم التفعيل بنجاح!';
 
-      // اخفاء الاشتراك مؤقتًا وعرض القنوات
       document.getElementById('subscription').classList.add('hidden');
       document.getElementById('channels').classList.remove('hidden');
       loadChannels();
-      document.getElementById('subInfo').textContent = `سيريال مفعل: ${serial}`;
+
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      document.getElementById('subInfo').innerHTML = `<b>السيريال:</b> ${serial}<br><b>تاريخ الانتهاء:</b> ${expiryDate.toLocaleDateString()}`;
 
     } else {
       message.style.color='red';
