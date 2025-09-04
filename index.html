@@ -24,6 +24,26 @@
       --ok:#22c55e;
       --warn:#f59e0b;
     }
+    .theme-light{
+      --bg:#f8fafc;
+      --bg-soft:#f1f5f9;
+      --panel:#e2e8f0;
+      --card:#f8fafc;
+      --muted:#64748b;
+      --text:#1e293b;
+      --brand:#0ea5e9;
+      --brand-2:#6366f1;
+      --danger:#dc2626;
+      --ok:#16a34a;
+      --warn:#ca8a04;
+    }
+    .theme-blue-sky{ --brand:#0ea5e9; --brand-2:#6366f1; }
+    .theme-green-leaf{ --brand:#4ade80; --brand-2:#22c55e; }
+    .theme-orange-fire{ --brand:#fb923c; --brand-2:#f97316; }
+    .font-cairo { font-family:"Cairo", system-ui, sans-serif; }
+    .font-almarai { font-family: 'Almarai', sans-serif; }
+    .font-amiri { font-family: 'Amiri', serif; }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -168,7 +188,19 @@
     <div id="pages">
         <div id="dashboard" class="page active">
             <h2>فاتورة جديدة</h2>
-            <div class="grid">
+            <div class="grid cards" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="card">
+                    <h3>دخل اليوم</h3>
+                    <div class="metric" id="dailyIncomeMetric">0</div>
+                    <span class="muted">${db.settings.currency}</span>
+                </div>
+                <div class="card">
+                    <h3>دخل الأسبوع</h3>
+                    <div class="metric" id="weeklyIncomeMetric">0</div>
+                    <span class="muted">${db.settings.currency}</span>
+                </div>
+            </div>
+            <div class="grid" style="margin-top: 12px;">
                 <div class="card" style="grid-column: span 2;">
                     <h3>تفاصيل الفاتورة</h3>
                     <div class="grid cards" style="grid-template-columns: 1fr 1fr;">
@@ -207,8 +239,7 @@
                         </div>
                     </div>
                     <div class="toolbar" style="margin-top: 12px;">
-                        <button class="btn primary" onclick="saveInvoice()"><i class="ti ti-device-floppy"></i> حفظ الفاتورة</button>
-                        <button class="btn ok" onclick="printInvoice()"><i class="ti ti-printer"></i> طباعة</button>
+                        <button class="btn primary" onclick="payAndPrint()"><i class="ti ti-cash"></i> دفع</button>
                         <button class="btn danger" onclick="clearInvoice()"><i class="ti ti-trash"></i> إفراغ</button>
                     </div>
                 </div>
@@ -353,7 +384,77 @@
             </div>
         
         <div id="settings" class="page hidden">
+            <h2>الإعدادات</h2>
+            <div class="grid split">
+              <div class="card">
+                <h3>إعدادات المتجر</h3>
+                <div class="grid" style="gap:10px;">
+                  <div class="field">
+                      <label>اسم المتجر</label>
+                      <input id="storeName" />
+                  </div>
+                  <div class="field">
+                      <label>اسم البائع</label>
+                      <input id="salespersonName" />
+                  </div>
+                  <div class="field">
+                      <label>العملة</label>
+                      <input id="currency" />
+                  </div>
+                </div>
+                <div class="toolbar" style="margin-top: 12px;">
+                    <button class="btn ok" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> حفظ الإعدادات</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3>إعدادات الحساب</h3>
+                <div class="grid" style="gap:10px;">
+                  <div class="field">
+                      <label>اسم المستخدم</label>
+                      <input id="adminUser" />
+                  </div>
+                  <div class="field">
+                      <label>كلمة السر</label>
+                      <input id="adminPass" type="password" />
+                  </div>
+                </div>
+                <div class="toolbar" style="margin-top: 12px;">
+                    <button class="btn ok" onclick="saveAccountSettings()"><i class="ti ti-device-floppy"></i> حفظ الحساب</button>
+                    <button class="btn warn" onclick="resetLogin()"><i class="ti ti-refresh"></i> إعادة تعيين</button>
+                </div>
+              </div>
             </div>
+
+            <div class="card" style="margin-top: 12px;">
+              <h3>إعدادات المظهر</h3>
+              <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="field">
+                  <label>وضع العرض</label>
+                  <select id="themeMode" onchange="applyTheme()">
+                    <option value="dark">الوضع الليلي</option>
+                    <option value="light">الوضع النهاري</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>موضوع الألوان</label>
+                  <select id="themeColor" onchange="applyTheme()">
+                    <option value="blue-sky">أزرق سماوي</option>
+                    <option value="green-leaf">أخضر ورقي</option>
+                    <option value="orange-fire">برتقالي ناري</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field" style="margin-top: 10px;">
+                <label>نوع الخط</label>
+                <select id="themeFont" onchange="applyTheme()">
+                  <option value="cairo">القاهرة</option>
+                  <option value="almarai">المراعي</option>
+                  <option value="amiri">الأميري</option>
+                </select>
+              </div>
+            </div>
+        </div>
     </div>
   </main>
 </div>
@@ -381,13 +482,24 @@
   // ====== الإعدادات الافتراضية ======
   const KEY = 'sales-admin-v1';
   const init = {
-    settings:{ storeName:'متجر النجمة', currency:'IQD', taxRate:0, adminUser:'admin', adminPass:'admin' },
+    settings:{ 
+      storeName:'متجر النجمة', 
+      salespersonName:'المالك', 
+      currency:'IQD', 
+      taxRate:0, 
+      adminUser:'admin', 
+      adminPass:'admin',
+      themeMode: 'dark',
+      themeColor: 'blue-sky',
+      themeFont: 'cairo',
+      lastIncomeResetDate: null
+    },
     products:[], sales:[], expenses:[]
   };
   let db = load();
   let invoiceItems = [];
   let invoiceId = 1;
-  let editingProductId = null; // لتتبع المنتج الذي يتم تعديله
+  let editingProductId = null;
 
   function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || init }catch{ return init } }
   function save(){ localStorage.setItem(KEY, JSON.stringify(db)); }
@@ -405,6 +517,9 @@
       }
       if (pageId === 'sales') {
         renderSalesPage();
+      }
+      if (pageId === 'settings') {
+        renderSettingsPage();
       }
   }
 
@@ -438,6 +553,7 @@
     }
   }
   (function initLogin(){
+    applyTheme();
     if(sessionStorage.getItem('logged')==='1'){
       loginPage.style.display='none';
       loginState.textContent='مُسجل';
@@ -453,6 +569,7 @@
         save();
     }
     byId('invoiceNumber').value = 'INV-' + Date.now();
+    updateIncomeMetrics();
   })();
 
   function resetLogin(){
@@ -580,33 +697,39 @@
     }
   }
 
-  function saveInvoice() {
+  function payAndPrint() {
     if (invoiceItems.length === 0) {
       alert('لا توجد منتجات في الفاتورة لحفظها.');
       return;
     }
-    if (confirm('هل تريد حفظ هذه الفاتورة؟')) {
-      // Calculate profit for the invoice
-      let profit = 0;
-      invoiceItems.forEach(item => {
-        const productData = db.products.find(p => p.id === item.id);
-        if (productData) {
-          profit += (item.price - productData.wholesalePrice) * item.quantity;
-        }
-      });
-      const invoice = {
-        id: byId('invoiceNumber').value,
-        customerName: val('customerName') || 'عميل نقدي',
-        items: invoiceItems,
-        total: parseFloat(byId('finalTotal').textContent),
-        profit: Math.round(profit),
-        date: new Date().toLocaleString()
-      };
-      db.sales.push(invoice);
-      save();
-      alert('تم حفظ الفاتورة بنجاح!');
+    if (confirm('هل تريد إتمام عملية الدفع وطباعة الفاتورة؟')) {
+      saveInvoice();
+      printInvoice();
       clearInvoice();
     }
+  }
+
+  function saveInvoice() {
+    // Calculate profit for the invoice
+    let profit = 0;
+    let finalTotal = parseFloat(byId('finalTotal').textContent);
+    invoiceItems.forEach(item => {
+      const productData = db.products.find(p => p.id === item.id);
+      if (productData) {
+        profit += (item.price - productData.wholesalePrice) * item.quantity;
+      }
+    });
+    const invoice = {
+      id: byId('invoiceNumber').value,
+      customerName: val('customerName') || 'عميل نقدي',
+      items: invoiceItems,
+      total: finalTotal,
+      profit: Math.round(profit),
+      date: new Date().toLocaleString()
+    };
+    db.sales.push(invoice);
+    save();
+    updateIncomeMetrics();
   }
 
   function printInvoice() {
@@ -616,6 +739,7 @@
           <hr style="border-top: 1px dashed black;">
           <p><strong>رقم الفاتورة:</strong> ${byId('invoiceNumber').value}</p>
           <p><strong>اسم العميل:</strong> ${val('customerName') || 'العميل النقدي'}</p>
+          <p><strong>اسم البائع:</strong> ${db.settings.salespersonName}</p>
           <p><strong>التاريخ:</strong> ${new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           <hr style="border-top: 1px dashed black;">
           <table style="width: 100%; border-collapse: collapse;">
@@ -805,6 +929,76 @@
     byId('totalProfitMetric').textContent = Math.round(totalProfit);
     byId('invoiceCountMetric').textContent = db.sales.length;
   }
+
+  // ====== وظائف الدخل اليومي والأسبوعي ======
+  function updateIncomeMetrics() {
+    const today = new Date();
+    const todaySales = db.sales.filter(s => new Date(s.date).toDateString() === today.toDateString());
+    const dailyIncome = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+
+    const weekStart = new Date(today);
+    // Find the previous Monday (or today if it's Monday)
+    weekStart.setDate(today.getDate() - (today.getDay() + 6) % 7);
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const weeklySales = db.sales.filter(s => {
+        const saleDate = new Date(s.date);
+        return saleDate >= weekStart;
+    });
+    const weeklyIncome = weeklySales.reduce((sum, sale) => sum + sale.total, 0);
+
+    byId('dailyIncomeMetric').textContent = Math.round(dailyIncome);
+    byId('weeklyIncomeMetric').textContent = Math.round(weeklyIncome);
+    save();
+  }
+
+  // ====== وظائف صفحة الإعدادات ======
+  function renderSettingsPage() {
+      byId('storeName').value = db.settings.storeName;
+      byId('salespersonName').value = db.settings.salespersonName;
+      byId('currency').value = db.settings.currency;
+      byId('adminUser').value = db.settings.adminUser;
+      byId('adminPass').value = db.settings.adminPass;
+      byId('themeMode').value = db.settings.themeMode;
+      byId('themeColor').value = db.settings.themeColor;
+      byId('themeFont').value = db.settings.themeFont;
+  }
+
+  function saveSettings() {
+      db.settings.storeName = val('storeName');
+      db.settings.salespersonName = val('salespersonName');
+      db.settings.currency = val('currency');
+      save();
+      alert('تم حفظ إعدادات المتجر بنجاح!');
+  }
+
+  function saveAccountSettings() {
+      if (confirm('هل أنت متأكد من تغيير بيانات الحساب؟')) {
+          db.settings.adminUser = val('adminUser');
+          db.settings.adminPass = val('adminPass');
+          save();
+          alert('تم حفظ بيانات الحساب بنجاح!');
+      }
+  }
+
+  function applyTheme() {
+    db.settings.themeMode = val('themeMode');
+    db.settings.themeColor = val('themeColor');
+    db.settings.themeFont = val('themeFont');
+    save();
+
+    const body = document.body;
+    body.classList.remove('theme-light', 'theme-blue-sky', 'theme-green-leaf', 'theme-orange-fire', 'font-cairo', 'font-almarai', 'font-amiri');
+    body.classList.add(`theme-${db.settings.themeMode}`, `theme-${db.settings.themeColor}`, `font-${db.settings.themeFont}`);
+    
+    // Update the gradient for dark mode if needed
+    if (db.settings.themeMode === 'dark') {
+      body.style.background = 'linear-gradient(135deg,var(--bg),#020617 60%)';
+    } else {
+      body.style.background = 'var(--bg)';
+    }
+  }
+
 </script>
 </body>
 </html>
