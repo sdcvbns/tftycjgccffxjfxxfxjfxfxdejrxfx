@@ -1,326 +1,810 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>talibalazoo | الاشتراك</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --primary-color: #4CAF50;
-  --background-color: #f0f2f5;
-  --text-color: #333;
-  --container-bg: #fff;
-  --font-family: 'Cairo', sans-serif;
-  --font-size: 16px;
-}
-*{margin:0;padding:0;box-sizing:border-box;font-family:var(--font-family);}
-body{
-  background:var(--background-color);
-  color:var(--text-color);
-  font-size: var(--font-size);
-  transition: background 0.5s, color 0.5s;
-}
-.hidden{display:none;}
-.container{max-width:500px;margin:30px auto;padding:25px;background:var(--container-bg);border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.1);animation:fadeIn 0.6s;}
-h2, h3{text-align:center;margin-bottom:20px;color:var(--text-color);}
-input{width:100%;padding:12px;margin:12px 0;border:1px solid #ccc;border-radius:8px;font-size:inherit;transition:border 0.3s;}
-input:focus{border:1px solid var(--primary-color);outline:none;}
-button, .theme-btn{width:100%;padding:12px;background:var(--primary-color);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:inherit;transition: background 0.3s, transform 0.2s;}
-button:hover, .theme-btn:hover{background-color:#45a049;transform:scale(1.03);}
-.channels,.settings,.player{padding:20px;max-width:700px;margin:20px auto;background:var(--container-bg);border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.1);animation:fadeIn 0.6s;}
-.channel-item{padding:15px;margin:10px 0;background: linear-gradient(90deg, #6a11cb, #2575fc);border-radius:10px;text-align:center;color:#fff;font-weight:bold;font-size:1.2em;cursor:pointer;transition: transform 0.3s, box-shadow 0.3s;}
-.channel-item:hover{transform: scale(1.05);box-shadow:0 5px 20px rgba(0,0,0,0.2);}
-.footer{text-align:center;margin-top:20px;font-size:0.9em;color:#888;}
-.theme-btn { margin: 5px 0; }
-#player video{width:100%;border-radius:10px;margin-top:15px;background-color:#000;}
-.settings-section { border-top: 1px solid #eee; margin-top: 20px; padding-top: 20px; }
-.settings-section h3 { margin-bottom: 15px; }
-.color-picker { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-.color-box { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.8/hls.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة إدارة محل مبيعات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --bg-soft:#111827;
+      --panel:#0b1220;
+      --card:#0f1a2b;
+      --muted:#94a3b8;
+      --text:#e5e7eb;
+      --brand:#22d3ee;
+      --brand-2:#a78bfa;
+      --danger:#ef4444;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(135deg,var(--bg),#020617 60%);
+      color:var(--text); font-family:"Cairo", system-ui, sans-serif; overflow:hidden;
+    }
+    a{color:inherit}
+    .app{display:flex; height:100%;}
+    .sidebar{
+      width:280px; background:linear-gradient(180deg,#0b1220,var(--panel));
+      border-left:1px solid #1f2937; padding:18px; overflow:auto;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.5px; font-size:20px;}
+    .brand i{color:var(--brand)}
+    .nav{margin-top:18px; display:grid; gap:8px}
+    .nav button{
+      all:unset; display:flex; gap:10px; align-items:center; padding:12px 14px;
+      border:1px solid #1f2937; background:rgba(255,255,255,.02);
+      border-radius:14px; cursor:pointer; transition:.2s ease; font-weight:600;
+    }
+    .nav button:hover{background:rgba(255,255,255,.06)}
+    .nav button.active{border-color:var(--brand); box-shadow:0 0 0 2px rgba(34,211,238,.15) inset}
+    .logout{margin-top:12px;}
+
+    .main{flex:1; overflow:auto; padding:18px}
+    .topbar{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px}
+    .search{display:flex; gap:10px; align-items:center; background:rgba(255,255,255,.04); border:1px solid #1f2937; padding:8px 12px; border-radius:12px; min-width:320px}
+    .search input{all:unset; direction:rtl; width:100%}
+
+    .grid{display:grid; gap:12px}
+    .grid.cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .card{background:linear-gradient(180deg,#0f1a2b,#0b1220); border:1px solid #1f2937; border-radius:18px; padding:14px}
+    .card h3{margin:0 0 8px 0; font-size:14px; color:var(--muted); font-weight:600}
+    .metric{font-size:28px; font-weight:800}
+
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
+    .btn{all:unset; display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; cursor:pointer; border:1px solid #1f2937; background:rgba(255,255,255,.04); font-weight:700}
+    .btn:hover{background:rgba(255,255,255,.08)}
+    .btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2)); color:#06111a}
+    .btn.danger{border-color:#7f1d1d; background:rgba(239,68,68,.1); color:#fecaca}
+    .btn.warn{border-color:#7c2d12; background:rgba(245,158,11,.1); color:#fde68a}
+    .btn.ok{border-color:#064e3b; background:rgba(34,197,94,.1); color:#bbf7d0}
+
+    table{width:100%; border-collapse:separate; border-spacing:0 8px}
+    thead th{font-size:12px; color:var(--muted); text-align:right}
+    tbody td{background:rgba(255,255,255,.03); border:1px solid #1f2937; padding:10px; vertical-align:middle}
+    tbody tr td:first-child{border-radius:10px 0 0 10px}
+    tbody tr td:last-child{border-radius:0 10px 10px 0}
+
+    .split{display:grid; grid-template-columns:1.2fr .8fr; gap:12px}
+    .field{display:grid; gap:6px}
+    .field input,.field select,.field textarea{all:unset; background:rgba(255,255,255,.04); border:1px solid #1f2937; border-radius:10px; padding:10px; direction:rtl}
+    .field textarea{min-height:80px}
+
+    .hidden{display:none !important}
+
+    /* صفحة تسجيل الدخول */
+    .login{position:fixed; inset:0; display:grid; place-items:center;
+      background:radial-gradient(1200px 800px at 70% -10%, rgba(34,211,238,.15), transparent),
+                 linear-gradient(135deg,#020617 10%, #0b1220 90%)}
+    .login .panel{width:min(480px,92vw); background:linear-gradient(180deg,#0f1a2b,#0b1220);
+      border:1px solid #1f2937; border-radius:20px; padding:18px}
+    .login h1{margin:0 0 8px 0}
+    .muted{color:var(--muted); font-size:12px}
+
+    .badge{display:inline-flex; gap:6px; align-items:center; font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid #1f2937; background:rgba(255,255,255,.05)}
+
+    .search-results{
+      position: absolute;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: var(--bg-soft);
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      z-index: 10;
+      margin-top: 5px;
+    }
+    .search-results button {
+      all: unset;
+      width: 100%;
+      padding: 10px;
+      cursor: pointer;
+      display: block;
+      transition: background-color 0.2s ease;
+      text-align: right;
+    }
+    .search-results button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width:1100px){
+      .grid.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .split{grid-template-columns:1fr}
+    }
+    @media (max-width:720px){
+      .sidebar{position:fixed; z-index:40; inset-block:0; right:0; transform:translateX(100%); transition:.25s}
+      .sidebar.open{transform:none}
+      .overlay{position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:30}
+      .grid.cards{grid-template-columns:1fr}
+      body{overflow:auto}
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #invoice-print-area, #invoice-print-area * { visibility: visible; }
+      #invoice-print-area { position: absolute; left: 0; top: 0; }
+    }
+  </style>
 </head>
-<body oncontextmenu="return false;" onselectstart="return false;">
+<body>
+<div id="overlay" class="overlay hidden" onclick="toggleSide(false)"></div>
+<div class="app">
+  <aside id="sidebar" class="sidebar">
+    <div class="brand"><i class="ti ti-shopping-bag"></i><span id="brandName">لوحة المتجر</span></div>
+    <div class="nav">
+      <button data-page="dashboard" class="active"><i class="ti ti-home"></i>الرئيسية</button>
+      <button data-page="products"><i class="ti ti-package"></i>المنتجات</button>
+      <button data-page="sales"><i class="ti ti-receipt"></i>المبيعات</button>
+      <button data-page="expenses"><i class="ti ti-cash"></i>المصاريف</button>
+      <button data-page="analytics"><i class="ti ti-chart-pie"></i>التحليلات</button>
+      <button data-page="barcode"><i class="ti ti-barcode"></i>الباركود</button>
+      <button data-page="settings"><i class="ti ti-settings"></i>الإعدادات</button>
+      <div class="logout">
+        <button class="btn" onclick="logout()"><i class="ti ti-logout"></i> خروج</button>
+      </div>
+    </div>
+  </aside>
 
-<div id="subscription" class="container">
-  <h2>تفعيل الاشتراك</h2>
-  <input type="text" id="serial" placeholder="السيريال سيتم توليده هنا" readonly>
-  <input type="text" id="code" placeholder="أدخل كود التفعيل">
-  <button onclick="activateSubscription()">تفعيل الاشتراك</button>
-  <div id="message" style="color:red;margin-top:10px;"></div>
-  <div class="footer">© talibalazoo</div>
+  <main class="main">
+    <div class="topbar">
+      <div class="toolbar">
+        <button class="btn" onclick="toggleSide(true)"><i class="ti ti-layout-sidebar-right"></i><span>القائمة</span></button>
+        <span class="badge"><i class="ti ti-shield-check"></i> حالة الدخول: <b id="loginState">—</b></span>
+      </div>
+      <div class="search">
+        <i class="ti ti-search"></i>
+        <input id="globalSearch" placeholder="ابحث..." oninput="globalSearch()" />
+      </div>
+    </div>
+
+    <div id="pages">
+        <div id="dashboard" class="page active">
+            <h2>فاتورة جديدة</h2>
+            <div class="grid">
+                <div class="card" style="grid-column: span 2;">
+                    <h3>تفاصيل الفاتورة</h3>
+                    <div class="grid cards" style="grid-template-columns: 1fr 1fr;">
+                        <div class="field">
+                            <label>اسم العميل</label>
+                            <input id="customerName" placeholder="العميل النقدي" />
+                        </div>
+                        <div class="field">
+                            <label>رقم الفاتورة</label>
+                            <input id="invoiceNumber" value="" readonly />
+                        </div>
+                    </div>
+                    <div class="field" style="margin-top: 12px; position: relative;">
+                        <label>ابحث عن منتج بالاسم أو الباركود</label>
+                        <input id="productSearch" oninput="searchProduct(this.value)" placeholder="اسم المنتج أو الباركود" />
+                        <div id="searchResults" class="search-results hidden"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>ملخص الفاتورة</h3>
+                    <div class="grid" style="gap: 8px;">
+                        <div class="badge">
+                            <b>الإجمالي:</b>
+                            <span id="totalAmount">0</span>
+                            <span>IQD</span>
+                        </div>
+                        <div class="badge">
+                            <b>الخصم:</b>
+                            <input type="number" id="discount" value="0" style="width: 50px; text-align: center; background: none; border: none; color: white;" oninput="updateTotals()">
+                            <span>%</span>
+                        </div>
+                        <div class="badge">
+                            <b>الإجمالي بعد الخصم:</b>
+                            <span id="finalTotal">0</span>
+                            <span>IQD</span>
+                        </div>
+                    </div>
+                    <div class="toolbar" style="margin-top: 12px;">
+                        <button class="btn primary" onclick="saveInvoice()"><i class="ti ti-device-floppy"></i> حفظ الفاتورة</button>
+                        <button class="btn ok" onclick="printInvoice()"><i class="ti ti-printer"></i> طباعة</button>
+                        <button class="btn danger" onclick="clearInvoice()"><i class="ti ti-trash"></i> إفراغ</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 12px;">
+                <h3>قائمة المنتجات</h3>
+                <div class="invoice-items" id="invoiceItems">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                                <th>الإجمالي</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="products" class="page hidden">
+            <h2>إدارة المنتجات</h2>
+            <div class="grid split">
+                <div class="card">
+                    <h3>إضافة / تعديل منتج</h3>
+                    <div class="grid">
+                        <div class="field">
+                            <label>التصنيف</label>
+                            <input id="productCategory" placeholder="مثال: إلكترونيات" />
+                        </div>
+                        <div class="field">
+                            <label>اسم المنتج</label>
+                            <input id="productName" placeholder="مثال: هاتف ذكي" />
+                        </div>
+                        <div class="grid cards" style="grid-template-columns: 1fr 1fr">
+                             <div class="field">
+                                <label>سعر المفرد</label>
+                                <input type="number" id="productRetailPrice" value="0" />
+                            </div>
+                            <div class="field">
+                                <label>سعر الجملة</label>
+                                <input type="number" id="productWholesalePrice" value="0" />
+                            </div>
+                        </div>
+                        <div class="grid cards" style="grid-template-columns: 1fr 1fr">
+                             <div class="field">
+                                <label>الكمية</label>
+                                <input type="number" id="productQuantity" value="0" />
+                            </div>
+                            <div class="field">
+                                <label>الباركود</label>
+                                <input id="productBarcode" placeholder="مثال: 123456789" />
+                            </div>
+                        </div>
+                        <div class="grid cards" style="grid-template-columns: 1fr 1fr">
+                             <div class="field">
+                                <label>تاريخ الصلاحية</label>
+                                <input type="date" id="productExpiryDate" />
+                            </div>
+                            <div class="field">
+                                <label>تاريخ الانتهاء</label>
+                                <input type="date" id="productExpirationDate" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toolbar" style="margin-top: 12px;">
+                        <button class="btn primary" id="addProductBtn" onclick="addProduct()"><i class="ti ti-plus"></i> إضافة منتج</button>
+                        <button class="btn warn hidden" id="updateProductBtn" onclick="updateProduct()"><i class="ti ti-edit"></i> تعديل</button>
+                        <button class="btn ok" onclick="resetForm()"><i class="ti ti-rotate-clockwise"></i> مسح الحقول</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>قائمة المنتجات</h3>
+                    <div style="max-height: 500px; overflow-y: auto;">
+                        <table id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th>المنتج</th>
+                                    <th>السعر</th>
+                                    <th>الكمية</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sales" class="page hidden">
+            <h2>سجل المبيعات</h2>
+            <div class="grid cards" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="card">
+                    <h3>إجمالي المبيعات</h3>
+                    <div class="metric" id="totalSalesMetric">0</div>
+                    <span class="muted">${db.settings.currency}</span>
+                </div>
+                <div class="card">
+                    <h3>إجمالي الأرباح</h3>
+                    <div class="metric" id="totalProfitMetric">0</div>
+                    <span class="muted">${db.settings.currency}</span>
+                </div>
+                <div class="card">
+                    <h3>عدد الفواتير</h3>
+                    <div class="metric" id="invoiceCountMetric">0</div>
+                    <span class="muted">فاتورة</span>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 12px;">
+                <h3>تفاصيل الفواتير</h3>
+                <table id="salesTable">
+                    <thead>
+                        <tr>
+                            <th>رقم الفاتورة</th>
+                            <th>العميل</th>
+                            <th>الإجمالي</th>
+                            <th>الأرباح</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="expenses" class="page hidden">
+            </div>
+
+        <div id="analytics" class="page hidden">
+            </div>
+        
+        <div id="barcode" class="page hidden">
+            </div>
+        
+        <div id="settings" class="page hidden">
+            </div>
+    </div>
+  </main>
 </div>
 
-<div id="channels" class="channels hidden">
-  <h2>القنوات الرياضية</h2>
-  <div id="channelList"></div>
-  <button class="theme-btn" onclick="openSettings()">الإعدادات</button>
-  <div class="footer">© talibalazoo</div>
-</div>
-
-<div id="player" class="player hidden">
-  <h2 id="channelTitle"></h2>
-  <video id="channelVideo" controls autoplay></video>
-  <button class="theme-btn" onclick="toggleFullScreen()">ملء الشاشة</button>
-  <button class="theme-btn" onclick="backToChannels()">عودة للقنوات</button>
-  <div class="footer">© talibalazoo</div>
-</div>
-
-<div id="settings" class="settings hidden">
-  <h2>الإعدادات</h2>
-  
-  <div class="settings-section">
-    <h3>تخصيص الواجهة</h3>
-    <button class="theme-btn" onclick="toggleNightMode()">الوضع الليلي</button>
-    <div class="color-picker">
-        <div class="color-box" style="background:#4CAF50;" onclick="changeThemeColor('#4CAF50')"></div>
-        <div class="color-box" style="background:#2196F3;" onclick="changeThemeColor('#2196F3')"></div>
-        <div class="color-box" style="background:#f44336;" onclick="changeThemeColor('#f44336')"></div>
-        <div class="color-box" style="background:#9C27B0;" onclick="changeThemeColor('#9C27B0')"></div>
+<div id="loginPage" class="login">
+  <div class="panel">
+    <h1>تسجيل الدخول</h1>
+    <p class="muted">الافتراضي: admin / admin — يمكنك تغييره من الإعدادات لاحقاً.</p>
+    <div class="grid" style="gap:10px; margin-top:12px">
+      <div class="field"><label>اسم المستخدم</label><input id="loginUser" placeholder="admin" /></div>
+      <div class="field"><label>كلمة السر</label><input id="loginPass" type="password" placeholder="••••••" /></div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="doLogin()"><i class="ti ti-login"></i> دخول</button>
+        <button class="btn warn" onclick="resetLogin()"><i class="ti ti-refresh"></i> إعادة تعيين</button>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="settings-section">
-      <h3>إعدادات الخط</h3>
-      <select id="fontSelector" onchange="changeFont(this.value)" style="width:100%; padding:10px; border-radius:8px; margin-bottom:10px;">
-          <option value="'Cairo', sans-serif">Cairo</option>
-          <option value="'Tajawal', sans-serif">Tajawal</option>
-          <option value="'Almarai', sans-serif">Almarai</option>
-      </select>
-      <div>
-        <button class="theme-btn" onclick="changeFontSize('increase')">تكبير الخط</button>
-        <button class="theme-btn" onclick="changeFontSize('decrease')">تصغير الخط</button>
-      </div>
-  </div>
-
-  <div class="settings-section">
-    <h3>معلومات الاشتراك</h3>
-    <p id="subInfo"></p>
-  </div>
-  
-  <button class="theme-btn" onclick="backToChannels()" style="margin-top:20px;">عودة للقنوات</button>
-  <div class="footer">© talibalazoo</div>
+<div id="modal" class="hidden" style="position:fixed; inset:0; display:grid; place-items:center; background:rgba(0,0,0,.45)">
+  <div class="card" style="width:min(720px,94vw)" id="modalBody"></div>
 </div>
 
 <script>
-let activeSerial = '';
-let serialKey = 'deviceSerial';
-let hls; 
+  // ====== الإعدادات الافتراضية ======
+  const KEY = 'sales-admin-v1';
+  const init = {
+    settings:{ storeName:'متجر النجمة', currency:'IQD', taxRate:0, adminUser:'admin', adminPass:'admin' },
+    products:[], sales:[], expenses:[]
+  };
+  let db = load();
+  let invoiceItems = [];
+  let invoiceId = 1;
+  let editingProductId = null; // لتتبع المنتج الذي يتم تعديله
 
-function getSerial(){
-  let serial = localStorage.getItem(serialKey);
-  if(!serial){
-    serial = 'S-' + Math.random().toString(36).substring(2,10).toUpperCase();
-    localStorage.setItem(serialKey, serial);
-  }
-  return serial;
-}
-
-window.onload = function(){
-  const serial = getSerial();
-  document.getElementById('serial').value = serial;
-
-  if(localStorage.getItem('activated') === 'true' && localStorage.getItem('code')){
-    document.getElementById('code').value = localStorage.getItem('code');
-  }
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || init }catch{ return init } }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(db)); }
+  function byId(id){ return document.getElementById(id) }
+  function val(id){ return byId(id).value }
   
-  // تطبيق الإعدادات المحفوظة
-  applySavedSettings();
-
-  document.getElementById('subscription').classList.remove('hidden');
-  document.getElementById('channels').classList.add('hidden');
-  document.getElementById('player').classList.add('hidden');
-  document.getElementById('settings').classList.add('hidden');
-}
-
-const channelData = [
-  {name:'shark 1', src:'https://shls-live-enc.edgenextcdn.net/out/v1/948c54279b594944adde578c95f1d7d1/index.m3u8'},
-  {name:'shark 2', src:'https://1.abcdjklaksnj.sbs/hls/1/stream.m3u8'},
-  {name:'shark 3', src:'video3.mp4'},
-  {name:'shark 4', src:'video4.mp4'},
-  {name:'shark 5', src:'video5.mp4'},
-  {name:'shark 6', src:'video6.mp4'},
-  {name:'shark 7', src:'video7.mp4'},
-  {name:'shark 8', src:'video8.mp4'},
-  {name:'shark 9', src:'video9.mp4'},
-  {name:'shark 10', src:'video10.mp4'}
-];
-function loadChannels(){
-  const list = document.getElementById('channelList');
-  list.innerHTML='';
-  channelData.forEach(ch=>{
-    const div = document.createElement('div');
-    div.className='channel-item';
-    div.textContent=ch.name;
-    div.onclick=()=>openChannel(ch.name,ch.src);
-    list.appendChild(div);
-  });
-}
-
-function openChannel(name, src){
-  document.getElementById('channels').classList.add('hidden');
-  document.getElementById('player').classList.remove('hidden');
-  document.getElementById('channelTitle').textContent = name;
-  const video = document.getElementById('channelVideo');
-  const messageElement = document.getElementById('message');
-  messageElement.textContent = ''; 
-
-  video.pause();
-  if (hls) {
-    hls.destroy();
-  }
-  video.src = '';
-  
-  if (src.endsWith('.m3u8') && Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(src);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-      video.play();
-    });
-    hls.on(Hls.Events.ERROR, function (event, data) {
-      if (data.fatal) {
-        console.error('Fatal HLS.js error:', data.details);
+  // ====== تحديث الواجهة عند تحميل الصفحة ======
+  function renderPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+      byId(pageId).classList.remove('hidden');
+      document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+      if (pageId === 'products') {
+        renderProductsTable();
       }
-    });
-  } else {
-    video.src = src;
-    video.play();
+      if (pageId === 'sales') {
+        renderSalesPage();
+      }
   }
-}
 
-function backToChannels(){
-  document.getElementById('player').classList.add('hidden');
-  document.getElementById('settings').classList.add('hidden');
-  document.getElementById('channels').classList.remove('hidden');
-  
-  const video = document.getElementById('channelVideo');
-  video.pause();
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
-  video.src = '';
-}
-
-function openSettings(){
-  document.getElementById('channels').classList.add('hidden');
-  document.getElementById('settings').classList.remove('hidden');
-}
-
-// --- دوال الإعدادات الجديدة ---
-
-function toggleNightMode() {
-    const isNight = document.body.style.getPropertyValue('--background-color') === '#222';
-    if (isNight) {
-        // العودة للوضع الافتراضي
-        document.body.style.setProperty('--background-color', '#f0f2f5');
-        document.body.style.setProperty('--text-color', '#333');
-        document.body.style.setProperty('--container-bg', '#fff');
-        localStorage.setItem('nightMode', 'disabled');
-    } else {
-        // تفعيل الوضع الليلي
-        document.body.style.setProperty('--background-color', '#222');
-        document.body.style.setProperty('--text-color', '#fff');
-        document.body.style.setProperty('--container-bg', '#333');
-        localStorage.setItem('nightMode', 'enabled');
-    }
-}
-
-function changeThemeColor(color) {
-    document.body.style.setProperty('--primary-color', color);
-    localStorage.setItem('themeColor', color);
-}
-
-function changeFont(font) {
-    document.body.style.setProperty('--font-family', font);
-    localStorage.setItem('fontFamily', font);
-}
-
-function changeFontSize(action) {
-    let currentSize = parseFloat(getComputedStyle(document.body).getPropertyValue('--font-size'));
-    if (action === 'increase' && currentSize < 24) {
-        currentSize += 2;
-    } else if (action === 'decrease' && currentSize > 12) {
-        currentSize -= 2;
-    }
-    const newSize = `${currentSize}px`;
-    document.body.style.setProperty('--font-size', newSize);
-    localStorage.setItem('fontSize', newSize);
-}
-
-function applySavedSettings() {
-    const nightMode = localStorage.getItem('nightMode');
-    const themeColor = localStorage.getItem('themeColor');
-    const fontFamily = localStorage.getItem('fontFamily');
-    const fontSize = localStorage.getItem('fontSize');
-
-    if (nightMode === 'enabled') {
-        toggleNightMode(); // سيقوم بالتبديل إلى الليلي
-    }
-    if (themeColor) {
-        changeThemeColor(themeColor);
-    }
-    if (fontFamily) {
-        changeFont(fontFamily);
-        document.getElementById('fontSelector').value = fontFamily;
-    }
-    if (fontSize) {
-        document.body.style.setProperty('--font-size', fontSize);
-    }
-}
-
-
-function toggleFullScreen() {
-  const video = document.getElementById('channelVideo');
-  if (!document.fullscreenElement) {
-    video.requestFullscreen().catch(err => {
-      alert(`خطأ في تفعيل وضع ملء الشاشة: ${err.message}`);
-    });
-  } else {
-    document.exitFullscreen();
-  }
-}
-
-function activateSubscription(){
-  const serial = document.getElementById('serial').value.trim();
-  const code = document.getElementById('code').value.trim();
-  const message = document.getElementById('message');
-
-  if(!code){ message.textContent='يرجى إدخال كود التفعيل'; return; }
-
-  const url = `https://script.google.com/macros/s/AKfycbw6UZ0bjrhOzVhkXGPixLZ5AE3dlW6sDqgiWypaSV_aLthEXbqUdLKo3gVYUBXpLgDhtQ/exec?serial=${encodeURIComponent(serial)}&code=${encodeURIComponent(code)}`;
-
-  fetch(url)
-  .then(res=>res.json())
-  .then(data=>{
-    if(data.status==='success'){
-      activeSerial = serial;
-      localStorage.setItem('activated','true'); 
-      localStorage.setItem('code', code); 
-      message.style.color='green';
-      message.textContent='تم التفعيل بنجاح!';
-
-      document.getElementById('subscription').classList.add('hidden');
-      document.getElementById('channels').classList.remove('hidden');
-      loadChannels();
-
-      const expiryDate = new Date();
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-      document.getElementById('subInfo').innerHTML = `<b>السيريال:</b> ${serial}<br><b>تاريخ الانتهاء:</b> ${expiryDate.toLocaleDateString()}`;
-
-    } else {
-      message.style.color='red';
-      message.textContent = 'الكود غير صحيح أو لم يتم تفعيله بعد';
-    }
-  })
-  .catch(err=>{
-    message.style.color='red';
-    message.textContent = 'خطأ في الاتصال بالخادم';
+  document.querySelectorAll('.nav button').forEach(button => {
+      button.addEventListener('click', () => {
+          renderPage(button.dataset.page);
+          toggleSide(false);
+      });
   });
-}
+
+  // ====== تسجيل الدخول ======
+  const loginState=byId('loginState');
+  const loginPage=byId('loginPage');
+  function doLogin(){
+    const u=val('loginUser').trim();
+    const p=val('loginPass').trim();
+    if(u===db.settings.adminUser && p===db.settings.adminPass){
+      sessionStorage.setItem('logged','1');
+      loginPage.style.display='none';
+      loginState.textContent='مُسجل';
+      renderPage('dashboard');
+    } else {
+      alert('بيانات الدخول غير صحيحة');
+    }
+  }
+  function logout(){
+    if(confirm('هل تريد تسجيل الخروج؟')){
+      sessionStorage.removeItem('logged');
+      loginPage.style.display='grid';
+      loginState.textContent='—';
+    }
+  }
+  (function initLogin(){
+    if(sessionStorage.getItem('logged')==='1'){
+      loginPage.style.display='none';
+      loginState.textContent='مُسجل';
+      renderPage('dashboard');
+    }
+    // إنشاء منتجات تجريبية إذا لم تكن موجودة
+    if (db.products.length === 0) {
+        db.products = [
+            { id: '1', name: 'لابتوب', barcode: '123456789', wholesalePrice: 1000, retailPrice: 1200, unit: 'قطعة', details: 'جهاز لابتوب حديث', quantity: 50, category:'إلكترونيات', expiryDate:'2026-12-31', expirationDate:'2028-12-31' },
+            { id: '2', name: 'هاتف ذكي', barcode: '987654321', wholesalePrice: 500, retailPrice: 600, unit: 'قطعة', details: 'هاتف ذكي بذاكرة 128GB', quantity: 100, category:'إلكترونيات', expiryDate:'', expirationDate:'' },
+            { id: '3', name: 'شاشة', barcode: '1122334455', wholesalePrice: 300, retailPrice: 350, unit: 'قطعة', details: 'شاشة مقاس 24 بوصة', quantity: 75, category:'إلكترونيات', expiryDate:'', expirationDate:'' }
+        ];
+        save();
+    }
+    byId('invoiceNumber').value = 'INV-' + Date.now();
+  })();
+
+  function resetLogin(){
+    if(confirm('إرجاع اسم المستخدم وكلمة السر إلى admin/admin؟')){
+      db.settings.adminUser='admin';
+      db.settings.adminPass='admin';
+      save();
+      alert('تمت إعادة التعيين: admin / admin');
+    }
+  }
+
+  // ====== فتح/إغلاق الشريط الجانبي ======
+  function toggleSide(open){
+    const s=byId('sidebar'); const o=byId('overlay');
+    if(window.innerWidth>720) return;
+    s.classList.toggle('open', !!open);
+    o.classList.toggle('hidden', !open);
+  }
+
+  // ====== وظائف الفاتورة ======
+  function searchProduct(query) {
+    const resultsContainer = byId('searchResults');
+    resultsContainer.innerHTML = '';
+    resultsContainer.classList.add('hidden');
+
+    if (query.trim().length === 0) {
+      return;
+    }
+
+    const filteredProducts = db.products.filter(p => 
+      p.name.includes(query) || (p.barcode && p.barcode.includes(query))
+    );
+    
+    if (filteredProducts.length > 0) {
+      resultsContainer.classList.remove('hidden');
+      filteredProducts.forEach(product => {
+        const resultItem = document.createElement('button');
+        resultItem.textContent = `${product.name} (${Math.round(product.retailPrice)} ${db.settings.currency})`;
+        resultItem.onclick = () => selectProduct(product.id);
+        resultsContainer.appendChild(resultItem);
+      });
+    }
+  }
+
+  function selectProduct(productId) {
+    const product = db.products.find(p => p.id === productId);
+    if (product) {
+      addProductToInvoice(product);
+      byId('productSearch').value = '';
+      byId('searchResults').innerHTML = '';
+      byId('searchResults').classList.add('hidden');
+    }
+  }
+
+  function addProductToInvoice(product) {
+    const existingItem = invoiceItems.find(item => item.id === product.id);
+    if (existingItem) {
+      existingItem.quantity++;
+    } else {
+      invoiceItems.push({
+        id: product.id,
+        name: product.name,
+        price: product.retailPrice,
+        wholesalePrice: product.wholesalePrice,
+        unit: product.unit,
+        details: product.details,
+        quantity: 1
+      });
+    }
+    renderInvoiceItems();
+  }
+  
+  function updateItemQuantity(productId, newQuantity) {
+    const item = invoiceItems.find(item => item.id === productId);
+    if (item) {
+      item.quantity = parseInt(newQuantity) || 0;
+      renderInvoiceItems();
+    }
+  }
+
+  function removeItemFromInvoice(productId) {
+    invoiceItems = invoiceItems.filter(item => item.id !== productId);
+    renderInvoiceItems();
+  }
+
+  function renderInvoiceItems() {
+    const tableBody = byId('invoiceTableBody');
+    tableBody.innerHTML = '';
+    let total = 0;
+
+    invoiceItems.forEach(item => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td><input type="number" value="${item.quantity}" oninput="updateItemQuantity('${item.id}', this.value)" style="width: 50px; background: none; border: none; text-align: center; color: white;" /></td>
+        <td>${Math.round(item.price)} ${db.settings.currency}</td>
+        <td>${Math.round(itemTotal)} ${db.settings.currency}</td>
+        <td>
+          <button class="btn danger" onclick="removeItemFromInvoice('${item.id}')"><i class="ti ti-trash"></i></button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    byId('totalAmount').textContent = Math.round(total);
+    updateTotals();
+  }
+
+  function updateTotals() {
+    const total = parseFloat(byId('totalAmount').textContent) || 0;
+    const discount = parseFloat(byId('discount').value) || 0;
+    const finalTotal = total - (total * (discount / 100));
+    byId('finalTotal').textContent = Math.round(finalTotal);
+  }
+
+  function clearInvoice() {
+    if (confirm('هل أنت متأكد من إفراغ الفاتورة؟')) {
+      invoiceItems = [];
+      byId('customerName').value = '';
+      byId('invoiceNumber').value = 'INV-' + Date.now();
+      byId('discount').value = 0;
+      renderInvoiceItems();
+    }
+  }
+
+  function saveInvoice() {
+    if (invoiceItems.length === 0) {
+      alert('لا توجد منتجات في الفاتورة لحفظها.');
+      return;
+    }
+    if (confirm('هل تريد حفظ هذه الفاتورة؟')) {
+      // Calculate profit for the invoice
+      let profit = 0;
+      invoiceItems.forEach(item => {
+        const productData = db.products.find(p => p.id === item.id);
+        if (productData) {
+          profit += (item.price - productData.wholesalePrice) * item.quantity;
+        }
+      });
+      const invoice = {
+        id: byId('invoiceNumber').value,
+        customerName: val('customerName') || 'عميل نقدي',
+        items: invoiceItems,
+        total: parseFloat(byId('finalTotal').textContent),
+        profit: Math.round(profit),
+        date: new Date().toLocaleString()
+      };
+      db.sales.push(invoice);
+      save();
+      alert('تم حفظ الفاتورة بنجاح!');
+      clearInvoice();
+    }
+  }
+
+  function printInvoice() {
+      const printContent = `
+        <div style="padding: 20px; font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; line-height: 1.6; color: black;">
+          <h2 style="text-align: center; color: black;">${db.settings.storeName}</h2>
+          <hr style="border-top: 1px dashed black;">
+          <p><strong>رقم الفاتورة:</strong> ${byId('invoiceNumber').value}</p>
+          <p><strong>اسم العميل:</strong> ${val('customerName') || 'العميل النقدي'}</p>
+          <p><strong>التاريخ:</strong> ${new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <hr style="border-top: 1px dashed black;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th style="border-bottom: 1px solid black; padding: 8px; text-align: right; color: black;">المنتج</th>
+                <th style="border-bottom: 1px solid black; padding: 8px; text-align: right; color: black;">الكمية</th>
+                <th style="border-bottom: 1px solid black; padding: 8px; text-align: right; color: black;">السعر</th>
+                <th style="border-bottom: 1px solid black; padding: 8px; text-align: right; color: black;">الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${invoiceItems.map(item => `
+                <tr>
+                  <td style="padding: 8px; text-align: right; color: black;">${item.name}</td>
+                  <td style="padding: 8px; text-align: right; color: black;">${item.quantity}</td>
+                  <td style="padding: 8px; text-align: right; color: black;">${Math.round(item.price)} ${db.settings.currency}</td>
+                  <td style="padding: 8px; text-align: right; color: black;">${Math.round(item.price * item.quantity)} ${db.settings.currency}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <hr style="border-top: 1px dashed black;">
+          <div style="text-align: left;">
+            <p style="color: black;"><strong>الإجمالي:</strong> ${byId('totalAmount').textContent} ${db.settings.currency}</p>
+            <p style="color: black;"><strong>الخصم:</strong> ${byId('discount').value}%</p>
+            <p style="font-size: 1.2em; font-weight: bold; color: black;">الإجمالي النهائي: ${byId('finalTotal').textContent} ${db.settings.currency}</p>
+          </div>
+          <hr style="border-top: 1px dashed black;">
+          <p style="text-align: center; color: black;">شكراً لزيارتكم</p>
+        </div>
+      `;
+      
+      const printWindow = window.open('', '_blank', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>فاتورة</title>');
+      printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">');
+      printWindow.document.write('<style>@media print { body { font-family: "Cairo", sans-serif; direction: rtl; text-align: right; } table { width: 100%; border-collapse: collapse; } th, td { border-bottom: 1px solid black; padding: 8px; text-align: right; } }</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(printContent);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+  }
+
+
+  function globalSearch(){
+    const query = byId('globalSearch').value;
+    searchProduct(query);
+  }
+
+  // ====== وظائف إدارة المنتجات ======
+  function renderProductsTable() {
+    const tableBody = byId('productsTableBody');
+    tableBody.innerHTML = '';
+    db.products.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <b>${p.name}</b><br>
+                <small>${p.category || 'غير مصنف'}</small>
+            </td>
+            <td>
+                مفرد: ${Math.round(p.retailPrice)} ${db.settings.currency}<br>
+                جملة: ${Math.round(p.wholesalePrice)} ${db.settings.currency}
+            </td>
+            <td>${p.quantity}</td>
+            <td>
+                <button class="btn ok" onclick="editProduct('${p.id}')"><i class="ti ti-edit"></i></button>
+                <button class="btn danger" onclick="deleteProduct('${p.id}')"><i class="ti ti-trash"></i></button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+  }
+
+  function addProduct() {
+      const newProduct = {
+          id: Date.now().toString(),
+          category: val('productCategory'),
+          name: val('productName'),
+          retailPrice: parseFloat(val('productRetailPrice')),
+          wholesalePrice: parseFloat(val('productWholesalePrice')),
+          quantity: parseInt(val('productQuantity')),
+          barcode: val('productBarcode'),
+          expiryDate: val('productExpiryDate'),
+          expirationDate: val('productExpirationDate')
+      };
+
+      if (!newProduct.name || isNaN(newProduct.retailPrice)) {
+          alert('يرجى إدخال اسم المنتج وسعر المفرد على الأقل.');
+          return;
+      }
+      db.products.push(newProduct);
+      save();
+      renderProductsTable();
+      resetForm();
+      alert('تم إضافة المنتج بنجاح!');
+  }
+
+  function editProduct(productId) {
+    const product = db.products.find(p => p.id === productId);
+    if (product) {
+        editingProductId = productId;
+        byId('productCategory').value = product.category;
+        byId('productName').value = product.name;
+        byId('productRetailPrice').value = product.retailPrice;
+        byId('productWholesalePrice').value = product.wholesalePrice;
+        byId('productQuantity').value = product.quantity;
+        byId('productBarcode').value = product.barcode;
+        byId('productExpiryDate').value = product.expiryDate;
+        byId('productExpirationDate').value = product.expirationDate;
+
+        byId('updateProductBtn').classList.remove('hidden');
+        byId('addProductBtn').classList.add('hidden');
+    }
+  }
+  
+  function updateProduct() {
+      const productIndex = db.products.findIndex(p => p.id === editingProductId);
+      if (productIndex > -1) {
+          db.products[productIndex] = {
+              id: editingProductId,
+              category: val('productCategory'),
+              name: val('productName'),
+              retailPrice: parseFloat(val('productRetailPrice')),
+              wholesalePrice: parseFloat(val('productWholesalePrice')),
+              quantity: parseInt(val('productQuantity')),
+              barcode: val('productBarcode'),
+              expiryDate: val('productExpiryDate'),
+              expirationDate: val('productExpirationDate')
+          };
+          save();
+          renderProductsTable();
+          resetForm();
+          alert('تم تعديل المنتج بنجاح!');
+      }
+  }
+
+  function deleteProduct(productId) {
+      if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+          db.products = db.products.filter(p => p.id !== productId);
+          save();
+          renderProductsTable();
+          alert('تم حذف المنتج بنجاح!');
+      }
+  }
+
+  function resetForm() {
+      editingProductId = null;
+      byId('productCategory').value = '';
+      byId('productName').value = '';
+      byId('productRetailPrice').value = 0;
+      byId('productWholesalePrice').value = 0;
+      byId('productQuantity').value = 0;
+      byId('productBarcode').value = '';
+      byId('productExpiryDate').value = '';
+      byId('productExpirationDate').value = '';
+
+      byId('updateProductBtn').classList.add('hidden');
+      byId('addProductBtn').classList.remove('hidden');
+  }
+
+  // ====== وظائف صفحة المبيعات ======
+  function renderSalesPage() {
+    let totalSales = 0;
+    let totalProfit = 0;
+    const salesTableBody = byId('salesTableBody');
+    salesTableBody.innerHTML = '';
+    
+    db.sales.forEach(sale => {
+      totalSales += sale.total;
+      totalProfit += parseFloat(sale.profit);
+      
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${sale.id}</td>
+        <td>${sale.customerName}</td>
+        <td>${Math.round(sale.total)} ${db.settings.currency}</td>
+        <td>${Math.round(sale.profit)} ${db.settings.currency}</td>
+        <td>${sale.date}</td>
+      `;
+      salesTableBody.appendChild(row);
+    });
+
+    byId('totalSalesMetric').textContent = Math.round(totalSales);
+    byId('totalProfitMetric').textContent = Math.round(totalProfit);
+    byId('invoiceCountMetric').textContent = db.sales.length;
+  }
 </script>
 </body>
 </html>
