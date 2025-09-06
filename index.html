@@ -357,6 +357,9 @@
                 </div>
             </div>
             <div class="card" style="margin-top: 12px;">
+                <div class="toolbar" style="justify-content: flex-end; margin-bottom: 12px;">
+                    <button class="btn danger" onclick="clearAllSales()"><i class="ti ti-trash"></i> إفراغ سجل المبيعات</button>
+                </div>
                 <h3>تفاصيل الفواتير</h3>
                 <table id="salesTable">
                     <thead>
@@ -381,7 +384,52 @@
             </div>
         
         <div id="barcode" class="page hidden">
+            <h2>إضافة منتج بواسطة الباركود</h2>
+            <div class="grid split">
+                <div class="card">
+                    <h3>قراءة الباركود</h3>
+                    <div class="grid" style="gap:10px;">
+                        <div class="field">
+                            <label>رقم الباركود</label>
+                            <input id="barcodeInput" type="text" placeholder="امسح الباركود هنا" oninput="populateBarcodeFields(this.value)" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>بيانات المنتج</h3>
+                    <div class="grid" style="gap:10px;">
+                        <div class="field">
+                            <label>اسم المنتج</label>
+                            <input id="barcodeProductName" placeholder="مثال: هاتف ذكي" />
+                        </div>
+                        <div class="field">
+                            <label>سعر البيع (مفرد)</label>
+                            <input id="barcodeRetailPrice" type="number" value="0" />
+                        </div>
+                        <div class="field">
+                            <label>سعر الجملة</label>
+                            <input id="barcodeWholesalePrice" type="number" value="0" />
+                        </div>
+                        <div class="field">
+                            <label>الكمية</label>
+                            <input id="barcodeQuantity" type="number" value="1" />
+                        </div>
+                        <div class="field">
+                            <label>تاريخ الصلاحية</label>
+                            <input id="barcodeExpiryDate" type="date" />
+                        </div>
+                        <div class="field">
+                            <label>تفاصيل المنتج</label>
+                            <textarea id="barcodeProductDetails" placeholder="أضف تفاصيل المنتج هنا"></textarea>
+                        </div>
+                    </div>
+                    <div class="toolbar" style="margin-top: 12px;">
+                        <button class="btn primary" onclick="addBarcodeProduct()"><i class="ti ti-plus"></i> إضافة المنتج</button>
+                    </div>
+                </div>
             </div>
+        </div>
         
         <div id="settings" class="page hidden">
             <h2>الإعدادات</h2>
@@ -930,6 +978,17 @@
     byId('invoiceCountMetric').textContent = db.sales.length;
   }
 
+  function clearAllSales() {
+    if (confirm('هل أنت متأكد من إفراغ سجل المبيعات بالكامل؟ لا يمكن التراجع عن هذا الإجراء.')) {
+        db.sales = [];
+        save();
+        renderSalesPage();
+        updateIncomeMetrics();
+        alert('تم إفراغ سجل المبيعات بنجاح.');
+    }
+  }
+
+
   // ====== وظائف الدخل اليومي والأسبوعي ======
   function updateIncomeMetrics() {
     const today = new Date();
@@ -997,6 +1056,75 @@
     } else {
       body.style.background = 'var(--bg)';
     }
+  }
+  
+  // ====== وظائف صفحة الباركود الجديدة ======
+  function populateBarcodeFields(barcode) {
+    const product = db.products.find(p => p.barcode === barcode);
+    if (product) {
+      alert('تم العثور على منتج بهذا الباركود.');
+      byId('barcodeProductName').value = product.name;
+      byId('barcodeRetailPrice').value = product.retailPrice;
+      byId('barcodeWholesalePrice').value = product.wholesalePrice;
+      byId('barcodeQuantity').value = product.quantity;
+      byId('barcodeExpiryDate').value = product.expiryDate;
+      byId('barcodeProductDetails').value = product.details;
+    } else {
+      byId('barcodeProductName').value = '';
+      byId('barcodeRetailPrice').value = '';
+      byId('barcodeWholesalePrice').value = '';
+      byId('barcodeQuantity').value = 1;
+      byId('barcodeExpiryDate').value = '';
+      byId('barcodeProductDetails').value = '';
+    }
+  }
+
+  function addBarcodeProduct() {
+      const barcode = val('barcodeInput').trim();
+      if (!barcode) {
+          alert('يرجى إدخال رقم الباركود.');
+          return;
+      }
+      
+      const existingProduct = db.products.find(p => p.barcode === barcode);
+      
+      const newProduct = {
+          id: existingProduct ? existingProduct.id : Date.now().toString(),
+          category: 'تم الإضافة بالباركود',
+          name: val('barcodeProductName'),
+          retailPrice: parseFloat(val('barcodeRetailPrice')),
+          wholesalePrice: parseFloat(val('barcodeWholesalePrice')),
+          quantity: parseInt(val('barcodeQuantity')),
+          barcode: barcode,
+          expiryDate: val('barcodeExpiryDate'),
+          expirationDate: val('barcodeExpirationDate') || '' ,
+          details: val('barcodeProductDetails')
+      };
+
+      if (!newProduct.name || isNaN(newProduct.retailPrice)) {
+          alert('يرجى إدخال اسم المنتج وسعر البيع على الأقل.');
+          return;
+      }
+
+      if (existingProduct) {
+          // Update existing product
+          Object.assign(existingProduct, newProduct);
+          alert('تم تحديث بيانات المنتج بنجاح!');
+      } else {
+          // Add new product
+          db.products.push(newProduct);
+          alert('تم إضافة المنتج بنجاح!');
+      }
+
+      save();
+      // Clear the barcode form after adding/updating
+      byId('barcodeInput').value = '';
+      byId('barcodeProductName').value = '';
+      byId('barcodeRetailPrice').value = '';
+      byId('barcodeWholesalePrice').value = '';
+      byId('barcodeQuantity').value = 1;
+      byId('barcodeExpiryDate').value = '';
+      byId('barcodeProductDetails').value = '';
   }
 
 </script>
