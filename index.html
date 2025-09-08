@@ -12,19 +12,6 @@
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <style>
     :root{
-      --bg:#0f172a;
-      --bg-soft:#111827;
-      --panel:#0b1220;
-      --card:#0f1a2b;
-      --muted:#94a3b8;
-      --text:#e5e7eb;
-      --brand:#22d3ee;
-      --brand-2:#a78bfa;
-      --danger:#ef4444;
-      --ok:#22c55e;
-      --warn:#f59e0b;
-    }
-    .theme-light{
       --bg:#f8fafc;
       --bg-soft:#f1f5f9;
       --panel:#e2e8f0;
@@ -44,90 +31,72 @@
     .font-almarai { font-family: 'Almarai', sans-serif; }
     .font-amiri { font-family: 'Amiri', serif; }
 
-    /* Custom Color Theme */
-    .custom-theme {
-        --text: #e5e7eb; /* Default light text for dark backgrounds */
-        --muted: #94a3b8;
-    }
-    .custom-theme.light-text {
-        --text: #1e293b; /* Dark text for light backgrounds */
-        --muted: #64748b;
-    }
-    .custom-theme,
-    .custom-theme.light-text {
-        --bg: var(--custom-bg-color);
-        --bg-soft: color-mix(in srgb, var(--custom-bg-color), transparent 5%);
-        --panel: color-mix(in srgb, var(--custom-bg-color), transparent 10%);
-        --card: color-mix(in srgb, var(--custom-bg-color), transparent 5%);
-    }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; background:linear-gradient(135deg,var(--bg),#020617 60%);
-      color:var(--text); font-family:"Cairo", system-ui, sans-serif; overflow:hidden;
-      background-color: var(--custom-bg-color, transparent);
+      margin:0; background:var(--bg); color:var(--text); 
+      font-family:"Cairo", system-ui, sans-serif; overflow:hidden;
+      user-select: none;
     }
     a{color:inherit}
     .app{display:flex; height:100%;}
     .sidebar{
-      width:280px; background:linear-gradient(180deg,#0b1220,var(--panel));
-      border-left:1px solid #1f2937; padding:18px; overflow:auto;
+      width:280px; background:var(--panel);
+      border-left:1px solid #cbd5e1; padding:18px; overflow:auto;
     }
     .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.5px; font-size:20px;}
     .brand i{color:var(--brand)}
     .nav{margin-top:18px; display:grid; gap:8px}
     .nav button{
       all:unset; display:flex; gap:10px; align-items:center; padding:12px 14px;
-      border:1px solid #1f2937; background:rgba(255,255,255,.02);
+      border:1px solid #e2e8f0; background:#e2e8f0;
       border-radius:14px; cursor:pointer; transition:.2s ease; font-weight:600;
     }
-    .nav button:hover{background:rgba(255,255,255,.06)}
-    .nav button.active{border-color:var(--brand); box-shadow:0 0 0 2px rgba(34,211,238,.15) inset}
+    .nav button:hover{background:#f1f5f9}
+    .nav button.active{border-color:var(--brand); box-shadow:0 0 0 2px rgba(14, 165, 233, 0.15) inset}
     .logout{margin-top:12px;}
 
     .main{flex:1; overflow:auto; padding:18px}
     .topbar{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px}
-    .search{display:flex; gap:10px; align-items:center; background:rgba(255,255,255,.04); border:1px solid #1f2937; padding:8px 12px; border-radius:12px; min-width:320px}
+    .search{display:flex; gap:10px; align-items:center; background:#e2e8f0; border:1px solid #cbd5e1; padding:8px 12px; border-radius:12px; min-width:320px}
     .search input{all:unset; direction:rtl; width:100%}
 
     .grid{display:grid; gap:12px}
     .grid.cards{grid-template-columns:repeat(4,minmax(0,1fr))}
-    .card{background:linear-gradient(180deg,#0f1a2b,#0b1220); border:1px solid #1f2937; border-radius:18px; padding:14px}
+    .card{background:var(--card); border:1px solid #e2e8f0; border-radius:18px; padding:14px}
     .card h3{margin:0 0 8px 0; font-size:14px; color:var(--muted); font-weight:600}
     .metric{font-size:28px; font-weight:800}
 
     .toolbar{display:flex; gap:8px; flex-wrap:wrap}
-    .btn{all:unset; display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; cursor:pointer; border:1px solid #1f2937; background:rgba(255,255,255,.04); font-weight:700}
-    .btn:hover{background:rgba(255,255,255,.08)}
-    .btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2)); color:#06111a}
-    .btn.danger{border-color:#7f1d1d; background:rgba(239,68,68,.1); color:#fecaca}
-    .btn.warn{border-color:#7c2d12; background:rgba(245,158,11,.1); color:#fde68a}
-    .btn.ok{border-color:#064e3b; background:rgba(34,197,94,.1); color:#bbf7d0}
+    .btn{all:unset; display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; cursor:pointer; border:1px solid #cbd5e1; background:#e2e8f0; font-weight:700; color:var(--text)}
+    .btn:hover{background:#f1f5f9}
+    .btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2)); color:white}
+    .btn.danger{border-color:#fda4af; background:#fee2e2; color:#ef4444}
+    .btn.warn{border-color:#fed7aa; background:#fffbeb; color:#f97316}
+    .btn.ok{border-color:#a7f3d0; background:#d1fae5; color:#10b981}
 
     table{width:100%; border-collapse:separate; border-spacing:0 8px}
     thead th{font-size:12px; color:var(--muted); text-align:right}
-    tbody td{background:rgba(255,255,255,.03); border:1px solid #1f2937; padding:10px; vertical-align:middle}
+    tbody td{background:#e2e8f0; border:1px solid #cbd5e1; padding:10px; vertical-align:middle}
     tbody tr td:first-child{border-radius:10px 0 0 10px}
     tbody tr td:last-child{border-radius:0 10px 10px 0}
 
     .split{display:grid; grid-template-columns:1.2fr .8fr; gap:12px}
     .field{display:grid; gap:6px}
-    .field input,.field select,.field textarea{all:unset; background:rgba(255,255,255,.04); border:1px solid #1f2937; border-radius:10px; padding:10px; direction:rtl}
+    .field input,.field select,.field textarea{all:unset; background:#e2e8f0; border:1px solid #cbd5e1; border-radius:10px; padding:10px; direction:rtl}
     .field textarea{min-height:80px}
 
     .hidden{display:none !important}
 
     /* صفحة تسجيل الدخول */
     .login{position:fixed; inset:0; display:grid; place-items:center;
-      background:radial-gradient(1200px 800px at 70% -10%, rgba(34,211,238,.15), transparent),
-                 linear-gradient(135deg,#020617 10%, #0b1220 90%)}
-    .login .panel{width:min(480px,92vw); background:linear-gradient(180deg,#0f1a2b,#0b1220);
-      border:1px solid #1f2937; border-radius:20px; padding:18px}
+      background:var(--bg)}
+    .login .panel{width:min(480px,92vw); background:#f1f5f9;
+      border:1px solid #e2e8f0; border-radius:20px; padding:18px}
     .login h1{margin:0 0 8px 0}
     .muted{color:var(--muted); font-size:12px}
 
-    .badge{display:inline-flex; gap:6px; align-items:center; font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid #1f2937; background:rgba(255,255,255,.05)}
+    .badge{display:inline-flex; gap:6px; align-items:center; font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid #cbd5e1; background:#e2e8f0}
 
     .search-results{
       position: absolute;
@@ -135,7 +104,7 @@
       max-height: 200px;
       overflow-y: auto;
       background-color: var(--bg-soft);
-      border: 1px solid #1f2937;
+      border: 1px solid #cbd5e1;
       border-radius: 10px;
       z-index: 10;
       margin-top: 5px;
@@ -150,9 +119,9 @@
       text-align: right;
     }
     .search-results button:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: #e2e8f0;
     }
-
+    
     @media (max-width:1100px){
       .grid.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
       .split{grid-template-columns:1fr}
@@ -247,7 +216,7 @@
                         </div>
                         <div class="badge">
                             <b>الخصم:</b>
-                            <input type="number" id="discount" value="0" style="width: 50px; text-align: center; background: none; border: none; color: white;" oninput="updateTotals()">
+                            <input type="number" id="discount" value="0" style="width: 50px; text-align: center; background: none; border: none; color: var(--text);" oninput="updateTotals()">
                             <span>%</span>
                         </div>
                         <div class="badge">
@@ -513,8 +482,8 @@
                 <div class="field">
                   <label>وضع العرض</label>
                   <select id="themeMode" onchange="applyTheme()">
-                    <option value="dark">الوضع الليلي</option>
                     <option value="light">الوضع النهاري</option>
+                    <option value="dark">الوضع الليلي</option>
                   </select>
                 </div>
                 <div class="field">
@@ -527,16 +496,11 @@
                 </div>
               </div>
               <div class="field" style="margin-top: 10px;">
-                <label>نوع الخط</label>
-                <select id="themeFont" onchange="applyTheme()">
-                  <option value="cairo">القاهرة</option>
-                  <option value="almarai">المراعي</option>
-                  <option value="amiri">الأميري</option>
-                </select>
-              </div>
-              <div class="field" style="margin-top: 10px;">
                 <label>لون الخلفية المخصص</label>
-                <input type="color" id="backgroundColorPicker" oninput="applyBackgroundColor(this.value)" />
+                <input type="color" id="backgroundColorPicker" value="#f8fafc" />
+              </div>
+              <div class="toolbar" style="margin-top: 12px;">
+                <button class="btn ok" onclick="saveCustomColor()"><i class="ti ti-device-floppy"></i> حفظ الألوان</button>
               </div>
             </div>
         </div>
@@ -574,11 +538,11 @@
       taxRate:0, 
       adminUser:'admin', 
       adminPass:'admin',
-      themeMode: 'dark',
+      themeMode: 'light',
       themeColor: 'blue-sky',
       themeFont: 'cairo',
       backgroundColor: null,
-      lastIncomeResetDate: null
+      lastInvoiceNumber: 0,
     },
     products:[], sales:[], expenses:[]
   };
@@ -643,7 +607,9 @@
   }
   (function initLogin(){
     applyTheme();
-    applyBackgroundColor(db.settings.backgroundColor);
+    if(db.settings.backgroundColor) {
+      applyBackgroundColor(db.settings.backgroundColor, false);
+    }
     if(sessionStorage.getItem('logged')==='1'){
       loginPage.style.display='none';
       loginState.textContent='مُسجل';
@@ -658,9 +624,19 @@
         ];
         save();
     }
-    byId('invoiceNumber').value = 'INV-' + Date.now();
+    // Set initial invoice number
+    if (!db.settings.lastInvoiceNumber) {
+        db.settings.lastInvoiceNumber = 0;
+        save();
+    }
+    updateInvoiceNumber();
     updateIncomeMetrics();
   })();
+
+  function updateInvoiceNumber() {
+    const nextInvoiceNumber = db.settings.lastInvoiceNumber + 1;
+    byId('invoiceNumber').value = 'INV-' + nextInvoiceNumber;
+  }
 
   function resetLogin(){
     if(confirm('إرجاع اسم المستخدم وكلمة السر إلى admin/admin؟')){
@@ -781,7 +757,7 @@
     if (confirm('هل أنت متأكد من إفراغ الفاتورة؟')) {
       invoiceItems = [];
       byId('customerName').value = '';
-      byId('invoiceNumber').value = 'INV-' + Date.now();
+      updateInvoiceNumber();
       byId('discount').value = 0;
       renderInvoiceItems();
     }
@@ -800,6 +776,7 @@
   }
 
   function saveInvoice() {
+    db.settings.lastInvoiceNumber++;
     // Calculate profit for the invoice
     let profit = 0;
     let finalTotal = parseFloat(byId('finalTotal').textContent);
@@ -825,11 +802,10 @@
   function printInvoice() {
       const printContent = `
         <div style="padding: 20px; font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; line-height: 1.6; color: black;">
-          <h2 style="text-align: center; color: black;">${db.settings.storeName}</h2>
+          <h2 style="text-align: center; color: black; margin-bottom: 20px;">${db.settings.storeName}</h2>
           <hr style="border-top: 1px dashed black;">
           <p><strong>رقم الفاتورة:</strong> ${byId('invoiceNumber').value}</p>
           <p><strong>اسم العميل:</strong> ${val('customerName') || 'العميل النقدي'}</p>
-          <p><strong>اسم البائع:</strong> ${db.settings.salespersonName}</p>
           <p><strong>التاريخ:</strong> ${new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           <hr style="border-top: 1px dashed black;">
           <table style="width: 100%; border-collapse: collapse;">
@@ -860,6 +836,7 @@
           </div>
           <hr style="border-top: 1px dashed black;">
           <p style="text-align: center; color: black;">شكراً لزيارتكم</p>
+          <p style="text-align: right; color: black;"><strong>البائع:</strong> ${db.settings.salespersonName}</p>
         </div>
       `;
       
@@ -1023,6 +1000,7 @@
   function clearAllSales() {
     if (confirm('هل أنت متأكد من إفراغ سجل المبيعات بالكامل؟ لا يمكن التراجع عن هذا الإجراء.')) {
         db.sales = [];
+        db.settings.lastInvoiceNumber = 0;
         save();
         renderSalesPage();
         updateIncomeMetrics();
@@ -1063,7 +1041,7 @@
       byId('themeMode').value = db.settings.themeMode;
       byId('themeColor').value = db.settings.themeColor;
       byId('themeFont').value = db.settings.themeFont;
-      byId('backgroundColorPicker').value = db.settings.backgroundColor || '#0f172a';
+      byId('backgroundColorPicker').value = db.settings.backgroundColor || '#f8fafc';
   }
 
   function saveSettings() {
@@ -1100,27 +1078,37 @@
       body.style.background = 'var(--bg)';
     }
   }
+  
+  function saveCustomColor() {
+      const color = val('backgroundColorPicker');
+      applyBackgroundColor(color, true);
+  }
 
-  function applyBackgroundColor(color) {
-      db.settings.backgroundColor = color;
-      save();
-      const body = document.body;
-      body.style.setProperty('--custom-bg-color', color);
-      body.classList.add('custom-theme');
-      body.classList.remove('theme-light', 'theme-blue-sky', 'theme-green-leaf', 'theme-orange-fire');
-
-      // Check perceived brightness and apply light/dark text class
-      const r = parseInt(color.substring(1, 3), 16);
-      const g = parseInt(color.substring(3, 5), 16);
-      const b = parseInt(color.substring(5, 7), 16);
-      const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-      if (brightness > 125) {
-          body.classList.add('light-text');
-      } else {
-          body.classList.remove('light-text');
+  function applyBackgroundColor(color, saveToDb = false) {
+      if (color) {
+        if(saveToDb) {
+            db.settings.backgroundColor = color;
+            save();
+            alert('تم حفظ اللون المخصص بنجاح!');
+        }
+        const body = document.body;
+        body.style.setProperty('--custom-bg-color', color);
+        body.classList.add('custom-theme');
+        body.classList.remove('theme-light', 'theme-blue-sky', 'theme-green-leaf', 'theme-orange-fire');
+  
+        // Check perceived brightness and apply light/dark text class
+        const r = parseInt(color.substring(1, 3), 16);
+        const g = parseInt(color.substring(3, 5), 16);
+        const b = parseInt(color.substring(5, 7), 16);
+        const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        if (brightness > 125) {
+            body.classList.add('light-text');
+        } else {
+            body.classList.remove('light-text');
+        }
       }
   }
-  
+
   // ====== وظائف صفحة الباركود الجديدة ======
   function populateBarcodeFields(barcode) {
     const product = db.products.find(p => p.barcode === barcode);
@@ -1326,6 +1314,9 @@
       }
     }
   });
+  
+  // Disable right-click context menu and text selection
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 </script>
 </body>
